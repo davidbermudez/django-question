@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Hello Bulma!{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+</head>
+
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">
+                XIX Curso de especialista TEIN
+            </h1>
+            <p class="subtitle">
+                Preguntas tipo <strong>TEST</strong>!
+            </p>
+        </div>
+    </section>
+    <section class="section">
+        {% block content %}{% endblock content %}
+    </section>
+</body>
+
+</html>
