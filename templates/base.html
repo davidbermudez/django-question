@@ -8,23 +8,49 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
 </head>
 
-<body>
-    <section class="section">
+<body>    
+    <section class="section has-background-warning">
         <div class="container">
-            <h1 class="title">
-                XIX Curso de especialista TEIN
-            </h1>
-            <p class="subtitle">
-                Preguntas tipo <strong>TEST</strong>!
-            </p>
+            <nav class="level">
+                <!-- Left side -->
+                <div class="level-left">
+                    <div class="level-item">
+                        <h1 class="title">
+                            <a href="{% url 'index' %}">XIX Curso de especialista TEIN</a>
+                        </h1>
+                    </div>
+                    <div class="level-item">
+                        <div class="field has-addons">
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right side -->
+                <div class="level-right">
+                    <p class="level-item"><a class="button is-link" href="{% url 'init' %}">Iniciar Test</a></p>                    
+                    <!--<p class="level-item"><a>Drafts</a></p>-->                    
+                    {% if user.is_authenticated %}
+                        {% if user.is_staff %}
+                            <p class="level-item"><a href="{% url 'admin:index' %}">Admin</a></p>
+                        {% endif %}
+                        <p class="level-item"><a href="{% url 'logout' %}">Logout</a></p>
+                        <p class="level-item"><a class="button is-success" href="{% url 'socialaccount_connections' %}">{{ user.username }}</a></p>
+                    {% else %}
+                        <p class="level-item"><a href="{% url 'account_login' %}">Login</a></p>
+                    {% endif %}                    
+                </div>
+            </nav>
         </div>
     </section>
+
     <section class="section">
         <div class="container">
             {% block content %}{% endblock content %}
         </div>
     </section>
     <script src="https://kit.fontawesome.com/42adee8d9b.js" crossorigin="anonymous"></script>
+    {% block javascript %}{% endblock %}
 </body>
 
 </html>
