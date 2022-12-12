@@ -1,57 +1,59 @@
 {% extends 'base.html' %}
+{% load socialaccount %}
+{% load static %}
 {% block title %}Login{% endblock %}
 
 {% block content %}
 
-{% if form.errors %}
-    <p>Your username and password didn't match. Please try again.</p>
-{% endif %}
+  {% if form.errors %}
+      <p>Your username and password didn't match. Please try again.</p>
+  {% endif %}
 
-{% if next %}
-    {% if user.is_authenticated %}
-        <p>Your account doesn't have access to this page. To proceed, please login with an account that has access.</p>
-    {% else %}
-        <p>Please login to see this page.</p>
-    {% endif %}
-{% endif %}
+  {% if next %}
+      {% if user.is_authenticated %}
+          <p>Your account doesn't have access to this page. To proceed, please login with an account that has access.</p>
+      {% else %}
+          <p>Please login to see this page.</p>
+      {% endif %}
+  {% endif %}
+  
+  <section>
+    <a href="{% provider_login_url 'google' %}"><img style="height: 64px;" src="{% static 'img/Google-Login.png' %}" alt="Sign with Google"></a>
+  </section>
 
-<form method="post" action="{% url 'login' %}">
-{% csrf_token %}
+  <form method="post" action="{% url 'login' %}">
+  {% csrf_token %}
 
-<div class="field">
-    <label class="label">{{ form.username.label_tag }}</label>
-    <div class="control has-icons-left has-icons-right">      
-      <input class="input is-success" name="username" type="text" required id="id_username" autofocus autocapitalize="none" placeholder="username" value="" maxlength="150">
-      <span class="icon is-small is-left">
-        <i class="fas fa-user"></i>
-      </span>
-      <span class="icon is-small is-right">
-        <i class="fas fa-check"></i>
-      </span>
+  <div class="field">
+      <label class="label">{{ form.username.label_tag }}</label>
+      <div class="control has-icons-left has-icons-right">      
+        <input class="input is-success" name="username" type="text" required id="id_username" autofocus autocapitalize="none" placeholder="username" value="" maxlength="150">
+        <span class="icon is-small is-left">
+          <i class="fas fa-user"></i>
+        </span>      
+      </div>
+  </div>
+  <div class="field">
+      <label class="label">{{ form.password.label_tag }}</label>
+      <div class="control has-icons-left has-icons-right">        
+        <input class="input is-success" type="password" placeholder="password" name="password" autocomplete="current-password" required id="id_password">      
+        <span class="icon is-small is-left">
+          <i class="fas fa-lock"></i>
+        </span>
+      </div>
+  </div>
+
+  <div class="field is-grouped">
+    <div class="control">
+      <button class="button is-link">Login</button>
     </div>
-    <p class="help is-success">This username is available</p>
-</div>
-<div class="field">
-    <label class="label">{{ form.password.label_tag }}</label>
-    <div class="control has-icons-left has-icons-right">        
-      <input class="input is-success" type="password" name="password" autocomplete="current-password" required id="id_password">      
-      <span class="icon is-small is-left">
-        <i class="fas fa-user"></i>
-      </span>
-      <span class="icon is-small is-right">
-        <i class="fas fa-check"></i>
-      </span>
+    <div class="control">
+      <input type="hidden" name="next" value="{{ next }}" />
     </div>
-    <p class="help is-success">This username is available</p>
-</div>
+  </div>
+  </form>
 
-<div>
-  <input type="submit" value="login" />
-  <input type="hidden" name="next" value="{{ next }}" />
-</div>
-</form>
-
-{# Assumes you setup the password_reset view in your URLconf #}
-<p><a href="{% url 'password_reset' %}">Lost password?</a></p>
+  {# Assumes you setup the password_reset view in your URLconf #}
+  <p><a href="{% url 'password_reset' %}">Lost password?</a></p>
 
 {% endblock %}

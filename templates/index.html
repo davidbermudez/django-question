@@ -1,8 +1,44 @@
 {% extends 'base.html' %}
 {% block title %}Inicio{% endblock %}
 {% block content %}
-<h1>{{ article }}</h1>
-<p>
-    {{ article }}
-</p>
+
+<h1 class="title">Cursos Disponibles</h1>
+<h2 class="subtitle">Selecciona o solicita acceso a tu curso</h2>
+{% for course in courses %}
+<div class="card">
+    <div class="card-content">
+        <p class="title">
+            {{ course.course_name }}
+            {{ course.id }}
+        </p>
+        <p class="subtitle">
+            {{ course.course_type }}
+        </p>
+    </div>
+    <footer class="card-footer">
+        {% if course.course_type == 'GPL/GNU' %}
+            <p class="card-footer-item">
+                <span class="button" onclick="location.href='{% url 'registration' course.course_slug %}'">
+                    {% if course.registration_date_end == None %}
+                        Matricúlate
+                    {% endif %}
+                </span>
+            </p>
+        {% else %}
+            <p class="card-footer-item">
+                <span class="button" onclick="location.href='{% url 'registration' course.course_slug %}'">
+                    {% if course.registration_date_end == None %}
+                    Register
+                    {% endif %}
+                </span>
+            </p>
+        {% endif %}
+        <p class="card-footer-item">
+            <span>
+                Share on <a href="#">Facebook</a>
+            </span>
+        </p>
+    </footer>
+</div>
+{% endfor %}
 {% endblock content %}
