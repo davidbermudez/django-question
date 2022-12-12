@@ -25,7 +25,8 @@ This file must contain the SECRET_KEY variable to prevent it from being shared t
 
 Launch containers
 
-
+    docker build .
+    
     docker-compose up
 
 ## Create superuser

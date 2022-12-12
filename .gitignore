@@ -1,3 +1,4 @@
 .devcontainer/
 data/
 app/secret.py
+.env
