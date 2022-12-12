@@ -22,11 +22,17 @@ class TypeAdmin(admin.ModelAdmin):
 
 
 class RegistrationAdmin(admin.ModelAdmin):
+    readonly_fields = ['registration_date']
+    
     fields = ['registration_user',
-        'registration_course'
+        'registration_course',
         'registration_date',
         'registration_date_end']
 
+    display_list = ['registration_user',
+            'registration_course',
+            'registration_date',
+            'registration_date_end']
 
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(Course, CourseAdmin)

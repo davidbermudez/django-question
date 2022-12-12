@@ -30,8 +30,8 @@ class Registration(models.Model):
         on_delete=models.CASCADE,
         null=True,
     )
-    registration_date = models.DateField(auto_now_add=True, editable=False)
-    registration_date_end = models.DateField(null=True)
+    registration_date = models.DateTimeField(auto_now_add=True, editable=False)
+    registration_date_end = models.DateTimeField(null=True)
 
 
 class Question(models.Model):

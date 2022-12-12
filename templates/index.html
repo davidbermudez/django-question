@@ -14,31 +14,40 @@
             </p>
             <p class="subtitle">
                 {{ course.course_type }}
-            </p>
+            </p>            
         </div>
         <footer class="card-footer">
-            {% if course.course_type == 'GPL/GNU' %}
-                <p class="card-footer-item">
-                    <span class="button" onclick="location.href='{% url 'registration' course.course_slug %}'">
-                        {% if course.registration_date_end == None %}
+            {% if course.registration_date == None %}
+                <!-- Not registered -->
+                {% if course.course_type == 'GPL/GNU' %}                
+                    <p class="card-footer-item">
+                        <span class="button is-primary" onclick="location.href='{% url 'registration' course.course_slug %}'">                            
                             Matricúlate
-                        {% endif %}
-                    </span>
-                </p>
+                        </span>
+                    </p>
+                {% else %}
+                    <p class="card-footer-item">
+                        <span class="button" onclick="location.href='{% url 'registration' course.course_slug %}'">
+                            {% if course.registration_date == None %}
+                                Matricúlate
+                            {% endif %}
+                        </span>
+                    </p>
+                {% endif %}
             {% else %}
+                <!-- Registered -->
                 <p class="card-footer-item">
-                    <span class="button" onclick="location.href='{% url 'registration' course.course_slug %}'">
-                        {% if course.registration_date_end == None %}
-                        Register
-                        {% endif %}
+                    <span class="button is-info" onclick="location.href='{% url 'course' course.course_slug %}'">                        
+                        Ir al Curso
                     </span>
                 </p>
-            {% endif %}
-            <p class="card-footer-item">
-                <span>
-                    Share on <a href="#">Facebook</a>
-                </span>
-            </p>
+                <p class="card-footer-item">
+                    <span class="button is-danger" onclick="location.href='{% url 'unsubscribe' course.course_slug %}'">
+                        Darte de Baja
+                    </span>
+                </p>
+            {% endif %}            
+            
         </footer>
     </div>
     {% endfor %}
@@ -46,3 +55,7 @@
     <p>No existen cursos</p>
 {% endif %}
 {% endblock content %}
+{% block javascript %}
+    <script>        
+    </script>
+{% endblock %}

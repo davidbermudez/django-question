@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from .models import Course, Registration
@@ -13,26 +13,26 @@ def index(request):
     courses = Course.objects.all()    
     cursos = []
     for course in courses:
-        registration = Registration.objects.filter(
-            registration_user=user,
-            registration_course=course
-        )
-        if registration:
+        try:
+            registration = Registration.objects.get(
+                registration_user=user,
+                registration_course=course.id
+            )
             course_render = {
                 'course_name':course.course_name,
-                'course_type':course.course_type,
+                'course_type':course.course_type.type_name,
                 'course_slug':course.course_slug,
                 'registration_date':registration.registration_date,
                 'registration_date_end':registration.registration_date_end
             }
-        else:
+        except Registration.DoesNotExist:
             course_render = {
                 'course_name':course.course_name,
                 'course_type':course.course_type,
                 'course_slug':course.course_slug,
                 'registration_date':None,
                 'registration_date_end':None
-            }
+            }                 
         cursos.append(course_render)
     return render(request, 'index.html', {
         'courses': cursos,
@@ -40,14 +40,35 @@ def index(request):
 
 @login_required
 def registration(request, course_slug):
-    course = get_object_or_404(Course, course_slug=course_slug)    
+    course = get_object_or_404(Course, course_slug=course_slug)
     new_record = Registration(
         registration_user=request.user,
-        registration_course=course,
-        #registration_date=datetime.datetime.now().date()
+        registration_course=course,        
     )
-    new_record.save()
-    index(request)
+    new_record.save()    
+    return redirect('index')
+
+
+@login_required
+def unsubscribe(request, course_slug):
+    user = None
+    if request.user.is_authenticated:
+        user = request.user
+    course = get_object_or_404(Course, course_slug=course_slug)
+    registration = Registration.objects.get(
+        registration_user=user,
+        registration_course=course.id
+    )
+    registration.delete()
+    return redirect('index')
+
+
+@login_required
+def course(request, course_slug):
+    cursos = []
+    return render(request, 'index.html', {
+        'courses': cursos,
+    })
 
 
 @login_required

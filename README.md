@@ -25,14 +25,23 @@ This file must contain the SECRET_KEY variable to prevent it from being shared t
 
 Launch containers
 
-    docker build .
+First time:
     
+    docker-compose build .
+    
+Init container:
+
     docker-compose up
 
-## Create superuser
+## Configure database
+
+### Create migration
+
+    python manage.py migrate
+
+### Create superuser 
 
     python manage.py createsuperuser
-
 
 ## Install bulma css
 
