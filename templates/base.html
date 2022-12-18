@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Hello Bulma!{% endblock %}</title>
+    <title>{% block title %}TodoTest{% endblock %}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
 </head>
 
@@ -34,16 +34,27 @@
                         {% if user.is_staff %}
                             <p class="level-item"><a href="{% url 'admin:index' %}">Admin</a></p>
                         {% endif %}
-                        <p class="level-item"><a href="{% url 'logout' %}">Logout</a></p>
+                        <p class="level-item"><a class="button is-danger" href="{% url 'logout' %}">Logout</a></p>
                         <p class="level-item"><a class="button is-success" href="{% url 'socialaccount_connections' %}">{{ user.username }}</a></p>
                     {% else %}
-                        <p class="level-item"><a href="{% url 'account_login' %}">Login</a></p>
+                        <p class="level-item"><a class="button is-success" href="{% url 'account_login' %}">Login</a></p>
                     {% endif %}                    
                 </div>
             </nav>
         </div>
     </section>
-
+    {% block body %}
+        {% if messages %}
+            <div class="container mt-3">
+                {% for message in messages %}
+                <div class="notification is-primary">
+                    <button class="delete"></button>
+                    {{message}}
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endblock %}
     <section class="section">
         <div class="container">
             {% block content %}{% endblock content %}
@@ -51,6 +62,17 @@
     </section>
     <script src="https://kit.fontawesome.com/42adee8d9b.js" crossorigin="anonymous"></script>
     {% block javascript %}{% endblock %}
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            (document.querySelectorAll('.notification .delete') || []).forEach(($delete) => {
+                const $notification = $delete.parentNode;
+
+                $delete.addEventListener('click', () => {
+                $notification.parentNode.removeChild($notification);
+                });
+            });
+            });
+    </script>
 </body>
 
 </html>

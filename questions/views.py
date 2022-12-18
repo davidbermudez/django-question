@@ -46,11 +46,12 @@ def index(request):
 def registration(request, course_slug):
     course = get_object_or_404(Course, course_slug=course_slug)
     # Si ya está matriculado no hacer nada
-    verify = Registration.objects.get(
-        registration_user=request.user,
-        registration_course=course
-    )
-    if verify == None:
+    try:
+        verify = Registration.objects.get(
+            registration_user=request.user,
+            registration_course=course
+        )
+    except Registration.DoesNotExist:
         new_record = Registration(
             registration_user=request.user,
             registration_course=course,        

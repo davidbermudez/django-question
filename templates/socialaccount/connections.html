@@ -1,0 +1,56 @@
+{#{% extends "socialaccount/base.html" %}#}
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Conexión de Cuentas{% endblock %}
+
+{% block content %}
+<h1 class="title">Conexión de Cuentas</h1>
+{% if form.accounts %}
+    <h2 class="subtitle">
+        {% blocktrans %}Puede iniciar sesión en su cuenta utilizando cualquiera de las siguientes cuentas de terceros:{% endblocktrans %}
+    </h2>
+
+    <form method="post" action="{% url 'socialaccount_connections' %}">
+        {% csrf_token %}
+
+        <fieldset>
+            {% if form.non_field_errors %}
+            <div id="errorMsg">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            {% for base_account in form.accounts %}
+            {% with base_account.get_provider_account as account %}
+            <div class="box">
+                <label for="id_account_{{ base_account.id }}">
+                    <input id="id_account_{{ base_account.id }}" type="radio" name="account"
+                        value="{{ base_account.id }}" />
+                    <span
+                        class="socialaccount_provider {{ base_account.provider }} {{ account.get_brand.id }}">{{account.get_brand.name}}</span>
+                    {{ account }}
+                </label>
+            </div>
+            {% endwith %}
+            {% endfor %}
+
+            <div>
+                <button class="button is-primary" type="submit">Eliminar</button>
+            </div>
+
+        </fieldset>
+
+    </form>
+
+{% else %}
+    <p>Actualmente no tienes cuentas de redes sociales conectadas a esta cuenta.</p>
+{% endif %}
+<div class="container mt-5">
+<h2 class="subtitle">Agregar cuenta de terceros</h2>
+
+<ul class="socialaccount_providers">
+    {% include "socialaccount/snippets/provider_list.html" with process="connect" %}
+</ul>
+
+{% include "socialaccount/snippets/login_extra.html" %}
+</div>
+{% endblock %}

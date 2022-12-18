@@ -41,8 +41,11 @@
             </div>
             <footer class="card-footer">
                 <p class="card-footer-item">
-                    <button class="button is-primary" onclick="changeQuestion({{ question|add:'-1' }})" {% if question == '0' %}disabled{% endif %}>Anterior</button>
-                    <button class="button is-primary" onclick="changeQuestion({{ question|add:'+1' }})" {% if question == '9' %}disabled{% endif %}>Siguiente</button>
+                    <button class="button is-primary ml-3" onclick="changeQuestion({{ question|add:'-1' }})" {% if question == '0' %}disabled{% endif %}>Anterior</button>
+                    <button class="button is-primary ml-3" onclick="changeQuestion({{ question|add:'+1' }})" {% if question == '9' %}disabled{% endif %}>Siguiente</button>
+                </p>
+                <p class="card-footer-item">
+                    <button class="button is-link">Finalizar Test</button>
                 </p>
             </footer>
         </div>
