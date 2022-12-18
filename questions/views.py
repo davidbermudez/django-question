@@ -7,14 +7,13 @@ import datetime, csv, random, json
 from django.core import serializers
 
 
-# Create your views here.
 def index(request):    
     user = None
     if request.user.is_authenticated:
         user = request.user
-
+    
     courses = Course.objects.all()    
-    cursos = []
+    cursos = []    
     for course in courses:
         try:
             registration = Registration.objects.get(
@@ -36,7 +35,8 @@ def index(request):
                 'registration_date':None,
                 'registration_date_end':None
             }                 
-        cursos.append(course_render)
+        cursos.append(course_render)    
+    #cursos = Registration.objects.filter(registration_user=user)
     return render(request, 'index.html', {
         'courses': cursos,
     })
@@ -45,11 +45,17 @@ def index(request):
 @login_required
 def registration(request, course_slug):
     course = get_object_or_404(Course, course_slug=course_slug)
-    new_record = Registration(
+    # Si ya está matriculado no hacer nada
+    verify = Registration.objects.get(
         registration_user=request.user,
-        registration_course=course,        
+        registration_course=course
     )
-    new_record.save()    
+    if verify == None:
+        new_record = Registration(
+            registration_user=request.user,
+            registration_course=course,        
+        )
+        new_record.save()
     return redirect('index')
 
 
