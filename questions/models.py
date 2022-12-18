@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
 
-# Create your models here.
+
 class Course(models.Model):    
     course_name = models.CharField(max_length=256, )
     course_type = models.ForeignKey(
@@ -18,6 +18,7 @@ class Course(models.Model):
 
     def __str__(self):
         return self.course_name
+
 
 class Registration(models.Model):
     registration_user = models.ForeignKey(
@@ -54,3 +55,17 @@ class Type(models.Model):
 
     def __str__(self):
         return self.type_name
+
+
+class QuizIntent(models.Model):
+    quizintent_user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        null=True,
+    )
+    quizintent_questions = models.JSONField(null=True)
+    quizintent_responses = models.JSONField(null=True)
+    quizintent_active = models.CharField(max_length=4, null=True)
+
+    
+

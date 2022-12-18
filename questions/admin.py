@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Question, Course, Type, Registration
+from .models import Question, Course, Type, Registration, QuizIntent
+
 
 class QuestionAdmin(admin.ModelAdmin):
     fields = ['question_theme',
@@ -10,7 +11,13 @@ class QuestionAdmin(admin.ModelAdmin):
         'question_response3',
         'question_response4',
         'question_valid'
-        ]
+    ]
+    
+    list_display = ['question_course',
+        'question_theme',
+        'question_chapter',
+        'question_text'
+    ]
 
 
 class CourseAdmin(admin.ModelAdmin):
@@ -29,10 +36,25 @@ class RegistrationAdmin(admin.ModelAdmin):
         'registration_date',
         'registration_date_end']
 
-    display_list = ['registration_user',
+    list_display = ['registration_user',
             'registration_course',
             'registration_date',
             'registration_date_end']
+
+
+class QuizIntentAdmin(admin.ModelAdmin):
+    fields = ['quizintent_user',
+        'quizintent_questions',
+        'quizintent_responses',
+        'quizintent_active'
+    ]
+
+    list_display = ['quizintent_user',
+        'quizintent_questions',
+    ]
+
+admin.site.register(QuizIntent, QuizIntentAdmin)
+
 
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(Course, CourseAdmin)

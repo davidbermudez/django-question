@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% block title %}Inicio{% endblock %}
+{% block content %}
+
+<h1 class="title">{{ course.course_name }}</h1>
+<h2 class="subtitle">Opciones</h2>
+{#{ questionsList }#}
+
+{% for preguntas in questionsList %}
+    {% if forloop.counter0 == indice %}
+    <p>{#{ preguntas|pprint }#}</p>
+    <p>{{ questionsResponses|pprint }}</p>
+    <p>{{ question }}</p>
+    <p>Selected: {{ questionsResponses.question }}</p>
+    <p>Selected: {{ questionsResponses.indice }}</p>
+        <div id="thequestion" class="card has-background-grey-lighter">
+            <div class="card-header">
+                <div class="card-content">
+                    <p class="title">Pregunta nº {{ question|add:'1'}}</p>
+                    <p class="subtitle">
+                        {{ preguntas.fields.question_theme }} | {{ preguntas.fields.question_chapter }}
+                    </p>
+                </div>
+            </div>
+            <div class="card-content">
+                <div class="content">
+                    <p class="subtitle">
+                        {{ preguntas.fields.question_text }}
+                    </p>
+                    <form>
+                        <div class="control ml-3">
+                            <p class=""><label class="radio">
+                                <input type="radio" name="Answer_{{question}}" value="1" onclick="selectOption({{ question }}, 1)"> {{ preguntas.fields.question_response1 }}
+                            </label></p>
+                            <p><label class="radio">
+                                <input type="radio" name="Answer_{{question}}" value="2" onclick="selectOption({{ question }}, 2)"> {{ preguntas.fields.question_response2 }}
+                            </label></p>
+                            <p><label class="radio">
+                                <input type="radio" name="Answer_{{question}}" value="3" onclick="selectOption({{ question }}, 3)"> {{ preguntas.fields.question_response3 }}
+                            </label></p>
+                            <p><label class="radio">
+                                <input type="radio" name="Answer_{{question}}" value="4" onclick="selectOption({{ question }}, 4)"> {{ preguntas.fields.question_response4 }}
+                            </label></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <footer class="card-footer">
+                <p class="card-footer-item">
+                    <button class="button is-primary" onclick="changeQuestion({{ question|add:'-1' }})" {% if question == 0 %}disabled{% endif %}>Anterior</button>
+                    <button class="button is-primary" onclick="changeQuestion({{ question|add:'+1' }})" {% if question == 9 %}disabled{% endif %}>Siguiente</button>
+                </p>
+            </footer>
+        </div>
+    {% endif %}
+{% empty %}
+        <p>vacio</p>
+{% endfor %}
+{% endblock content %}
+{% block javascript %}
+<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+<script>
+    document.querySelectorAll('[type="radio"]').forEach((x) => x.checked = false);
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    function changeQuestion(value){
+        console.log(value)
+        var URLactual = window.location;
+        $.ajax({
+            url: '/processOption/',
+            type: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken
+            },
+            data: {
+                'key': value,
+            },
+            dataType: 'json',
+            success: function (data) {
+                if(data.result=="Success"){
+                    location.reload()
+                }
+            }
+        });
+    }
+
+    function selectOption(value, option){
+        console.log(value)
+        var URLactual = window.location;
+        $.ajax({
+            url: '/sendOption/',
+            type: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken
+            },
+            data: {
+                'key': value,
+                'value': option
+            },
+            dataType: 'json',
+            success: function (data) {
+                if(data.result=="Success"){                    
+                    $("#thequestion").attr("class", "has-background-warning");
+                }
+            }
+        });
+    }
+
+</script>
+{% endblock %}
