@@ -63,6 +63,11 @@ class QuizIntent(models.Model):
         on_delete=models.CASCADE,
         null=True,
     )
+    quizintent_course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        null=True,
+    )
     quizintent_questions = models.JSONField(null=True)
     quizintent_responses = models.JSONField(null=True)
     quizintent_active = models.CharField(max_length=4, null=True)

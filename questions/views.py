@@ -71,6 +71,8 @@ def unsubscribe(request, course_slug):
         registration_course=course.id
     )
     registration.delete()
+    #Eliminar los Intents de este usuario y curso
+    intentos = QuizIntent.objects.filter(quizintent_user=user, quizintent_course=course).delete()
     return redirect('index')
 
 
@@ -181,6 +183,7 @@ def createIntent(user_object, course_object):
     serialized_lre = serializers.serialize('json', questions)
     new_record = QuizIntent(
         quizintent_user=user_object,
+        quizintent_course=course_object,
         quizintent_questions=serialized_lre,
         quizintent_responses=json.dumps(list_responses),
         quizintent_active='0'

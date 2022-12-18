@@ -44,12 +44,14 @@ class RegistrationAdmin(admin.ModelAdmin):
 
 class QuizIntentAdmin(admin.ModelAdmin):
     fields = ['quizintent_user',
+        'quizintent_course',
         'quizintent_questions',
         'quizintent_responses',
         'quizintent_active'
     ]
 
     list_display = ['quizintent_user',
+        'quizintent_course',
         'quizintent_questions',
     ]
 

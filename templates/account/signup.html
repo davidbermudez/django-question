@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block head_title %}{% trans "Signup" %}{% endblock %}
+
+{% block content %}
+<div class="container is-max-desktop">
+<h1 class="title">Crear Cuenta</h1>
+
+<p>{% blocktrans %}¿Ya tienes una cuenta? Entonces inicia sesión <a href="{{ login_url }}">aquí</a>.{% endblocktrans %}
+</p>
+    <form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
+        {% csrf_token %}
+        <div class="field">
+            <label class="label">{{ form.username.label_tag }}</label>
+            <div class="control has-icons-left has-icons-right">
+                <input class="input is-success" name="username" type="text" required id="id_username" autofocus
+                    autocapitalize="none" placeholder="username" value="" maxlength="150">
+                <span class="icon is-small is-left">
+                    <i class="fas fa-user"></i>
+                </span>
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="label">{{ form.email.label_tag }}</label>
+            <div class="control has-icons-left has-icons-right">
+                <input class="input is-success" name="email" type="text" required id="id_email" autofocus
+                    autocapitalize="none" placeholder="E-mail address" value="" maxlength="150">
+                <span class="icon is-small is-left">
+                    <i class="fas fa-envelope"></i>
+                </span>
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="label">{{ form.password1.label_tag }}</label>
+            <div class="control has-icons-left has-icons-right">
+                <input class="input is-success" type="password" placeholder="password" name="password1"
+                    autocomplete="current-password" required id="id_password1">
+                <span class="icon is-small is-left">
+                    <i class="fas fa-lock"></i>
+                </span>
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="label">{{ form.password2.label_tag }} (again)</label>
+            <div class="control has-icons-left has-icons-right">
+                <input class="input is-success" type="password" placeholder="password (again)" name="password2"
+                    autocomplete="current-password" required id="id_password2">
+                <span class="icon is-small is-left">
+                    <i class="fas fa-lock"></i>
+                </span>
+            </div>
+        </div>
+        {% if redirect_field_value %}
+        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+        {% endif %}
+        <button class="button is-success" type="submit">{% trans "Sign Up" %} &raquo;</button>
+    </form>
+</div>
+
+{% endblock %}
