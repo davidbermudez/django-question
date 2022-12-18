@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Inicio{% endblock %}
+{% block content %}
+
+<h1 class="title">{{ course.course_name }}</h1>
+<h2 class="subtitle">Opciones</h2>
+{% if user.is_staff %}
+    <div class="card">
+        <div class="card-content">
+            <p class="title">
+                Opciones del administrador
+            </p>
+            <p class="subtitle">
+                -                
+            </p>
+        </div>
+        <footer class="card-footer">
+            <p class="card-footer-item">
+                <span class="button is-primary" onclick="location.href='{% url 'csv_upload' course.course_slug %}'">
+                    Cargar csv
+                </span>
+            </p>
+        </footer>
+    </div>
+{% endif %}
+<div class="card">
+    <div class="card-content">
+        <p class="title">
+            Opciones disponibles
+        </p>        
+    </div>
+    <footer class="card-footer">
+        <p class="card-footer-item">
+            <span class="button is-link" onclick="location.href='{% url 'init_quiz' course.course_slug %}'">
+                Iniciar Test
+            </span>
+        </p>
+        <p class="card-footer-item">
+            <span class="button is-warning" onclick="location.href='{% url 'csv_upload' course.course_slug %}'">
+                Ver Resultados
+            </span>
+        </p>
+        <p class="card-footer-item">
+            <span class="button is-danger" onclick="location.href='{% url 'csv_upload' course.course_slug %}'">
+                Reiniciar
+            </span>
+        </p>
+        <p class="card-footer-item">
+            <span class="button is-success" onclick="location.href='{% url 'index' %}'">
+                Volver
+            </span>
+        </p>
+    </footer>
+</div>
+{% endblock content %}
+{% block javascript %}
+    <script>        
+    </script>
+{% endblock %}

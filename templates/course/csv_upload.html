@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Inicio{% endblock %}
+{% block content %}
+
+<h1 class="title">{{ course.course_name }}</h1>
+<h2 class="subtitle">Subir Archivo CSV</h2>
+    {% if user.is_staff %}
+        <div class="card">
+            <div class="card-content">
+                <p class="title">
+                    Opciones del administrador
+                </p>
+                <p class="subtitle">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <input type="submit" value="Subir archivo">
+                    </form>                                
+                </p>
+            </div>        
+        </div>
+    {% endif %}
+{% endblock content %}
+{% block javascript %}
+    <script>        
+    </script>
+{% endblock %}
