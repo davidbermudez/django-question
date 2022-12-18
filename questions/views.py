@@ -143,23 +143,23 @@ def init_quiz(request, course_slug, ordinal=0):
         # Buscamos en la base de datos el intento anterior para este usuario
         try:
             questionsList = QuizIntent.objects.get(quizintent_user=user)
-            question_active = questionsList.quizintent_active
-            questionsResponses = json.loads(questionsList.quizintent_responses)
+            question_active = questionsList.quizintent_active            
         except QuizIntent.DoesNotExist:
             # Si no existe, preparamos un conjunto de 10 preguntas al azar desde Question        
             createIntent(user, course)
             questionsList = QuizIntent.objects.get(quizintent_user=user)            
-            question_active = '0'
-            questionsResponses = json.loads(questionsList.quizintent_responses)
-        #convert a dict
+            question_active = '0'            
+        #convert a dict/list
+        questionsResponses = json.loads(questionsList.quizintent_responses)
         questionsQuestions = json.loads(questionsList.quizintent_questions)
-        
+        indice = int(question_active)
     return render(request, 'course/quiz.html', {
         'course': course,
         'question': question_active,
-        'indice': int(question_active),
+        'indice': indice,
         'questionsList': questionsQuestions, #questionsList.quizintent_questions
-        'questionsResponses' : questionsResponses
+        'questionsResponses' : questionsResponses,
+        'questionResponse': questionsResponses[indice]
     })
 
 
@@ -170,7 +170,7 @@ def createIntent(user_object, course_object):
     # cargamos las preguntas de ese curso, desordenadas al azar
     questions = Question.objects.filter(question_course=course_object).order_by('?')[:10]
     # create Object database
-    list_responses = [{'0':'', '1':'', '2':'', '3':'', '4':'', '5':'', '6':'', '7':'', '8':'', '9':''},]
+    list_responses = (None,None,None,None,None,None,None,None,None,None)
     serialized_lre = serializers.serialize('json', questions)
     new_record = QuizIntent(
         quizintent_user=user_object,
@@ -204,11 +204,20 @@ def sendOption(request):
             quizIntent = QuizIntent.objects.get(quizintent_user=user)
             pregunta = request.POST.get('key')
             respuesta = request.POST.get('value')
+            indice = int(pregunta)
             #convert a dict
-            provisional = json.loads(quizIntent.quizintent_responses[0])
-            provisional[pregunta] = respuesta
+            provisional = json.loads(quizIntent.quizintent_responses)
+            #provisional = list(provisional)
+            #print("Tipo:", type(provisional))
+            #provisional = list(provisional)
+            #print("Tipo:", type(provisional))
+            #print(provisional)
+            #print("nº", indice)
+            #print(provisional[indice])
+            #cambiar elemento
+            provisional[indice] = respuesta
             #convert a json
-            quizintent_responses = json.dumps(provisional),
+            quizintent_responses = json.dumps(provisional)
             quizIntent.quizintent_responses = quizintent_responses
             quizIntent.save()
             result = {'result': 'Success'}
