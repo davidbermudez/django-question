@@ -27,7 +27,10 @@
     <div class="card-content">
         <p class="title">
             Opciones disponibles
-        </p>        
+        </p>
+        {% if intents %}
+            <p>Existe un intento anterior sin finalizar abierto el {{ intents.0.quizintent_dateInit|date:"d/m/Y H:i" }}. Pulse en Iniciar Test para continuar</p>
+        {% endif %}
     </div>
     <footer class="card-footer">
         <p class="card-footer-item">

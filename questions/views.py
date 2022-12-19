@@ -1,10 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.contrib.auth.decorators import login_required
-from .models import Course, Registration, Question, QuizIntent
+from .models import Course, Registration, Question, QuizIntent, QuizFinalized
 from .forms import CsvUploadForm, OneQuestionForm
 import datetime, csv, random, json
 from django.core import serializers
+from django.contrib import messages
 
 
 def index(request):    
@@ -76,14 +77,23 @@ def unsubscribe(request, course_slug):
     return redirect('index')
 
 
+def privacy(request):
+    return render(request, 'privacy.html', {        
+    })
+
+
 @login_required
 def course(request, course_slug):
     user = None
     if request.user.is_authenticated:
         user = request.user
-    course = get_object_or_404(Course, course_slug=course_slug)    
+    course = get_object_or_404(Course, course_slug=course_slug)
+    # Intent en vigor?
+    quizintent = None
+    quizintent = QuizIntent.objects.filter(quizintent_user=user, quizintent_course=course)
     return render(request, 'course/course.html', {
         'course': course,
+        'intents': quizintent
     })
 
 
@@ -151,12 +161,12 @@ def init_quiz(request, course_slug, ordinal=0):
     else:
         # Buscamos en la base de datos el intento anterior para este usuario
         try:
-            questionsList = QuizIntent.objects.get(quizintent_user=user)
+            questionsList = QuizIntent.objects.get(quizintent_user=user, quizintent_course=course)
             question_active = questionsList.quizintent_active            
         except QuizIntent.DoesNotExist:
-            # Si no existe, preparamos un conjunto de 10 preguntas al azar desde Question        
+            # Si no existe, preparamos un conjunto de 10 preguntas al azar desde Question
             createIntent(user, course)
-            questionsList = QuizIntent.objects.get(quizintent_user=user)            
+            questionsList = QuizIntent.objects.get(quizintent_user=user, quizintent_course=course)
             question_active = '0'            
         #convert a dict/list
         questionsResponses = json.loads(questionsList.quizintent_responses)
@@ -177,8 +187,8 @@ def createIntent(user_object, course_object):
     create a list with 10 question random and save in database
     '''    
     # cargamos las preguntas de ese curso, desordenadas al azar
-    questions = Question.objects.filter(question_course=course_object).order_by('?')[:10]
-    # create Object database
+    questions = Question.objects.filter(question_course=course_object).order_by('?')[:10]    
+    # create Object database    
     list_responses = (None,None,None,None,None,None,None,None,None,None)
     serialized_lre = serializers.serialize('json', questions)
     new_record = QuizIntent(
@@ -195,9 +205,10 @@ def processOption(request):
     if request.is_ajax():
         user = None
         if request.user.is_authenticated:
-            user = request.user        
+            user = request.user
+            course_id = request.POST.get('id')
             # Realizar cálculos o consultar la base de datos aquí
-            quizIntent = QuizIntent.objects.get(quizintent_user=user)
+            quizIntent = QuizIntent.objects.get(quizintent_user=user, quizintent_course=course_id)
             quizIntent.quizintent_active = request.POST.get('key')
             quizIntent.save()
             result = {'result': 'Success'}
@@ -206,30 +217,79 @@ def processOption(request):
 
 
 def sendOption(request):
+    print('Request', request.POST)
     if request.is_ajax():
         user = None
         if request.user.is_authenticated:
-            user = request.user        
-            # Realizar cálculos o consultar la base de datos aquí
-            quizIntent = QuizIntent.objects.get(quizintent_user=user)
+            user = request.user                    
             pregunta = request.POST.get('key')
             respuesta = request.POST.get('value')
+            course_id = request.POST.get('id')
+            # Realizar cálculos o consultar la base de datos aquí
+            quizIntent = QuizIntent.objects.get(quizintent_user=user, quizintent_course=course_id)
+            print('R', respuesta)
             indice = int(pregunta)
             #convert a dict
             provisional = json.loads(quizIntent.quizintent_responses)
-            #provisional = list(provisional)
-            #print("Tipo:", type(provisional))
-            #provisional = list(provisional)
-            #print("Tipo:", type(provisional))
-            #print(provisional)
-            #print("nº", indice)
-            #print(provisional[indice])
             #cambiar elemento
+            if respuesta=='0':
+                respuesta = None
             provisional[indice] = respuesta
             #convert a json
             quizintent_responses = json.dumps(provisional)
             quizIntent.quizintent_responses = quizintent_responses
             quizIntent.save()
-            result = {'result': 'Success'}
+            result = {'result': 'Success0'}
+            if respuesta == None:
+                result = {'result': 'Success1'}
             return JsonResponse(result)    
+    return HttpResponseBadRequest()
+
+
+def endQuiz(request):
+    if request.is_ajax():
+        user = None
+        if request.user.is_authenticated:
+            user = request.user
+            # Debe de haber un intento activo, localizar, trasladar los datos a la table definitiva y eliminar            
+            course_id = request.POST.get('id')            
+            try:
+                quizintent = QuizIntent.objects.get(quizintent_user=user, quizintent_course=course_id)
+                respuestas = json.loads(quizintent.quizintent_responses)
+                preguntas = json.loads(quizintent.quizintent_questions)
+                i = 0
+                ptos = 0
+                success = []                
+                for p in respuestas:
+                    pregunta = preguntas[i]['fields']['question_valid']
+                    print("Pregunta", type(pregunta))
+                    print("Respuesta",type(p))
+                    if p == None:
+                        ptos = ptos
+                        success.append(None)
+                    elif p == str(pregunta):
+                        ptos = ptos + 1
+                        success.append(True)
+                    else:
+                        ptos = ptos - 1
+                        success.append(False)
+                    #print("Pregunta: ", preguntas[i]['fields']['question_valid'])
+                    #print("Respuesta: ", p)
+                    i = i + 1                
+                
+                quizfinalized = QuizFinalized(
+                    quizfinalized_user = quizintent.quizintent_user,
+                    quizfinalized_course = quizintent.quizintent_course,
+                    quizfinalized_questions = quizintent.quizintent_questions,
+                    quizfinalized_responses = quizintent.quizintent_responses,
+                    quizfinalized_result = ptos,
+                    quizfinalized_success = json.dumps(success)
+                )
+                quizfinalized.save()
+                quizintent.delete()
+                messages.add_message(request, messages.INFO, 'Ha obtenido ' + str(ptos) + ' puntos')
+                result = {'result': 'Success'}
+                return JsonResponse(result)
+            except QuizIntent.DoesNotExist:
+                print('Error')
     return HttpResponseBadRequest()

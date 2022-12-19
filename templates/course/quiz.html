@@ -3,10 +3,9 @@
 {% block content %}
 <div ></div>
 <h1 class="title">{{ course.course_name }}</h1>
-<h2 class="subtitle">Opciones</h2>
+<h2 class="subtitle">Completa el test</h2>
 {% for preguntas in questionsList %}
-    {% if forloop.counter0 == indice %}
-        
+    {% if forloop.counter0 == indice %}        
         <div id="thequestion" class="card {% if questionResponse == None %}has-background-grey-lighter{% else %}has-background-warning{% endif %}">
             <div class="card-header">
                 <div class="card-content">
@@ -36,6 +35,9 @@
                                 <input type="radio" id="Answer_4" name="Answer_{{question}}" value="4" onclick="selectOption({{ question }}, 4)"> {{ preguntas.fields.question_response4 }}
                             </label></p>
                         </div>
+                        <div class="control">
+                            <div class="button" id="button_mark" onclick="selectOption({{ question }}, 0)" disabled>Desmarcar</div>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -45,7 +47,7 @@
                     <button class="button is-primary ml-3" onclick="changeQuestion({{ question|add:'+1' }})" {% if question == '9' %}disabled{% endif %}>Siguiente</button>
                 </p>
                 <p class="card-footer-item">
-                    <button class="button is-link">Finalizar Test</button>
+                    <button class="button is-link" onclick="endQuiz()">Finalizar Test</button>
                 </p>
             </footer>
         </div>
@@ -54,18 +56,22 @@
         <p>vacio</p>
 {% endfor %}
 {% endblock content %}
+
 {% block javascript %}
 <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
 <script>
     //Todas a cero
     document.querySelectorAll('[type="radio"]').forEach((x) => x.checked = false);
+    //document.getElementById("button_mark").disabled=true;
     function uncheck(){
         document.querySelectorAll('[type="radio"]').forEach((x) => x.checked = false);
     }
     //Checked list
     {% if questionResponse != None %}
-    document.getElementById("Answer_{{questionResponse}}").checked=true;
+        document.getElementById("Answer_{{questionResponse}}").checked=true;
+        document.getElementById("button_mark").removeAttribute("disabled");
     {% endif %}
+
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -83,8 +89,7 @@
     }
     const csrftoken = getCookie('csrftoken');
 
-    function changeQuestion(value){
-        console.log(value)
+    function changeQuestion(value){        
         var URLactual = window.location;
         $.ajax({
             url: '/processOption/',
@@ -94,19 +99,19 @@
             },
             data: {
                 'key': value,
+                'id': {{ course.id }}
             },
             dataType: 'json',
             success: function (data) {
                 if(data.result=="Success"){
                     location.reload()
                 }
-            }
+            }            
         });
     }
 
-    function selectOption(value, option){
-        console.log(value)
-        var URLactual = window.location;
+    function selectOption(value, option){        
+        var URLactual = window.location;        
         $.ajax({
             url: '/sendOption/',
             type: 'POST',
@@ -115,16 +120,43 @@
             },
             data: {
                 'key': value,
-                'value': option
+                'value': option,
+                'id': {{ course.id }}
             },
             dataType: 'json',
-            success: function (data) {
-                if(data.result=="Success"){                    
+            success: function (data) {                
+                if(data.result=="Success0"){                    
                     $("#thequestion").attr("class", "has-background-warning");
                 }
+                if(data.result=="Success1"){
+                    uncheck()
+                    $("#thequestion").attr("class", "has-background-grey-lighter");
+                }
+            },
+            error: function(xhr, status){
+                console.log(xhr, status)
             }
         });
     }
 
+    function endQuiz(){
+        $.ajax({
+            url: '/endQuiz/',
+            type: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken
+            },
+            data: {
+                'key': csrftoken,
+                'id': {{ course.id }}
+            },
+            dataType: 'json',
+            success: function (data) {
+                if(data.result=="Success"){
+                    location.href="{% url 'course' course.course_slug %}"
+                }
+            }
+        })
+    }    
 </script>
 {% endblock %}

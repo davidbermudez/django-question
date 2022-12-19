@@ -49,6 +49,9 @@ class Question(models.Model):
         on_delete=models.CASCADE,
         null=True)
 
+    def __str__(self):
+        return self.question_text
+
 
 class Type(models.Model):
     type_name = models.CharField(max_length=25)
@@ -71,6 +74,21 @@ class QuizIntent(models.Model):
     quizintent_questions = models.JSONField(null=True)
     quizintent_responses = models.JSONField(null=True)
     quizintent_active = models.CharField(max_length=4, null=True)
+    quizintent_dateInit = models.DateTimeField(auto_now_add=True, editable=False)
 
-    
 
+class QuizFinalized(models.Model):
+    quizfinalized_user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        null=True,
+    )
+    quizfinalized_course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        null=True,
+    )
+    quizfinalized_questions = models.JSONField(null=True)
+    quizfinalized_responses = models.JSONField(null=True)
+    quizfinalized_success = models.JSONField(null=True)
+    quizfinalized_result = models.IntegerField(null=True)

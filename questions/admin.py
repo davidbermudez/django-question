@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Question, Course, Type, Registration, QuizIntent
+from .models import Question, Course, Type, Registration, QuizIntent, QuizFinalized
 
 
 class QuestionAdmin(admin.ModelAdmin):
@@ -47,17 +47,36 @@ class QuizIntentAdmin(admin.ModelAdmin):
         'quizintent_course',
         'quizintent_questions',
         'quizintent_responses',
-        'quizintent_active'
+        'quizintent_active',
+        'quizintent_dateInit'
     ]
 
     list_display = ['quizintent_user',
         'quizintent_course',
-        'quizintent_questions',
+        'quizintent_responses',
+        'quizintent_dateInit'
+    ]
+
+    readonly_fields = ['quizintent_dateInit']
+
+class QuizFinalizedAdmin(admin.ModelAdmin):
+    fields = ['quizfinalized_user',
+        'quizfinalized_course',
+        'quizfinalized_questions',
+        'quizfinalized_responses',
+        'quizfinalized_success',
+        'quizfinalized_result',
+    ]
+
+    list_display = ['quizfinalized_user',
+        'quizfinalized_course',
+        'quizfinalized_responses',
+        'quizfinalized_success',
+        'quizfinalized_result',
     ]
 
 admin.site.register(QuizIntent, QuizIntentAdmin)
-
-
+admin.site.register(QuizFinalized, QuizFinalizedAdmin)
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(Course, CourseAdmin)
 admin.site.register(Type, TypeAdmin)
