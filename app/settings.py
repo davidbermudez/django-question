@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
 from pathlib import Path
+from django.contrib.messages import constants as messages
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -157,3 +158,12 @@ SITE_ID = 2
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+
+MESSAGE_TAGS = {
+    messages.DEBUG: 'notification is-link',
+    messages.INFO: 'notification is-info',
+    messages.SUCCESS: 'notification is-success',
+    messages.WARNING: 'notification is-warnin',
+    messages.ERROR: 'notification is-danger',
+}

@@ -35,7 +35,7 @@
     <footer class="card-footer">
         <p class="card-footer-item">
             <span class="button is-link" onclick="location.href='{% url 'init_quiz' course.course_slug %}'">
-                Iniciar Test
+                {% if intents %}Continuar Test{% else %}Iniciar Nuevo Test{% endif %}
             </span>
         </p>
         <p class="card-footer-item">

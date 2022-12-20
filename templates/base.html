@@ -113,21 +113,20 @@
         </div>
     </section>
     {% block modal %}
-    {% if messages %}
-    <div id="modal-js-example" class="modal is-active">
-        {% for message in messages %}
-        <div class="modal-background"></div>
-    
-        <div class="modal-content">
-        <div class="box">
-            <p class="title">Resultado Test</p>        
-            <p id="modal-text">{{message}}</p>
+        {% if messages %}
+        <div id="modal-js-example" class="modal is-active">
+            {% for message in messages %}
+            <div class="modal-background"></div>        
+            <div class="modal-content {{ message.tags }}">
+            <div class="box">
+                <p class="title">TodoTest</p>
+                <p id="modal-text">{{message|safe}}</p>
+            </div>
+            </div>    
+            <button class="modal-close is-large" aria-label="close"></button>
+            {% endfor %}
         </div>
-        </div>    
-        <button class="modal-close is-large" aria-label="close"></button>
-        {% endfor %}
-    </div>
-    {% endif %}
+        {% endif %}
     {% endblock modal %}
     <script src="https://kit.fontawesome.com/42adee8d9b.js" crossorigin="anonymous"></script>
     {% block javascript %}{% endblock %}

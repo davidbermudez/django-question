@@ -167,7 +167,9 @@ def init_quiz(request, course_slug, ordinal=0):
             # Si no existe, preparamos un conjunto de 10 preguntas al azar desde Question
             createIntent(user, course)
             questionsList = QuizIntent.objects.get(quizintent_user=user, quizintent_course=course)
-            question_active = '0'            
+            question_active = '0'
+            # Message
+            messages.add_message(request, messages.INFO, '<strong>Recuerde:</strong><br/>Preguntas correctas: 1 pt<br/>Preguntas incorrectas: -1 pt<br/>Preguntas no contestadas: 0 pts', extra_tags='is-info')
         #convert a dict/list
         questionsResponses = json.loads(questionsList.quizintent_responses)
         questionsQuestions = json.loads(questionsList.quizintent_questions)
@@ -259,20 +261,26 @@ def endQuiz(request):
                 preguntas = json.loads(quizintent.quizintent_questions)
                 i = 0
                 ptos = 0
-                success = []                
+                nc = 0
+                aciertos = 0
+                errores = 0
+                success = []
                 for p in respuestas:
                     pregunta = preguntas[i]['fields']['question_valid']
                     print("Pregunta", type(pregunta))
-                    print("Respuesta",type(p))
+                    print("Respuesta",type(p))                    
                     if p == None:
                         ptos = ptos
                         success.append(None)
+                        nc = nc + 1
                     elif p == str(pregunta):
                         ptos = ptos + 1
                         success.append(True)
+                        aciertos = aciertos + 1
                     else:
                         ptos = ptos - 1
                         success.append(False)
+                        errores = errores + 1
                     #print("Pregunta: ", preguntas[i]['fields']['question_valid'])
                     #print("Respuesta: ", p)
                     i = i + 1                
@@ -287,7 +295,15 @@ def endQuiz(request):
                 )
                 quizfinalized.save()
                 quizintent.delete()
-                messages.add_message(request, messages.INFO, 'Ha obtenido ' + str(ptos) + ' puntos')
+                texto = 'Ha obtenido <strong>' + str(ptos) + '</strong> puntos<br/>' + \
+                    '<ul><li>Aciertos:<strong>' + str(aciertos) + '</strong></li>' + \
+                    '<li>Errores:<strong>' + str(errores) + '</strong></li>' + \
+                    '<li>No contestadas:<strong>' + str(nc) + '</strong></li></ul>'
+                if ptos > 0:
+                    tipo = messages.INFO
+                else:
+                    tipo = messages.ERROR
+                messages.add_message(request, tipo, texto)
                 result = {'result': 'Success'}
                 return JsonResponse(result)
             except QuizIntent.DoesNotExist:
