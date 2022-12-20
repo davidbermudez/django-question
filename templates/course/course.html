@@ -31,6 +31,56 @@
         {% if intents %}
             <p>Existe un intento anterior sin finalizar abierto el {{ intents.0.quizintent_dateInit|date:"d/m/Y H:i" }}. Pulse en Iniciar Test para continuar</p>
         {% endif %}
+        {% if finalized %}
+        {{aciertos.0}}{{errores.0}}{{nocontesta.0}}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th><abbr title="Finalizado">Finalizado</abbr></th>
+                        <th><abbr title="Aciertos">Ac.</abbr></th>
+                        <th><abbr title="Errores">Er.</abbr></th>
+                        <th><abbr title="No contestadas">Nc.</abbr></th>
+                        <th><abbr title="Puntuación">Ptos.</abbr></th>
+                    </tr>
+                </thead>
+                <tbody>                
+                {% for quiz in finalized %}
+                    <tr>
+                        <th>{{ quiz.quizfinalized_dateEnd|date:"d/m/Y H:i" }}</th>
+                        {% with indice=forloop.counter0 %}                            
+                            <td>{% cycle aciertos.0 aciertos.1 aciertos.2 aciertos.3 aciertos.4 %}</td>
+                            <td>{% cycle errores.0 errores.1 errores.2 errores.3 errores.4 %}</td>
+                            <td>{% cycle nocontesta.0 nocontesta.1 nocontesta.2 nocontesta.3 nocontesta.4 %}</td>                            
+                            <td>{{ quiz.quizfinalized_result }}</td>
+                        {% endwith %}
+                    </tr>
+                {% endfor %}
+                
+                </tbody>
+            </table>
+            <nav class="pagination" role="navigation" aria-label="pagination">
+                {% if finalized.has_previous %}
+                    <a class="pagination-previous" href="?page={{ finalized.number|add:'-1' }}">Previous</a>
+                {% endif %}
+                {% if finalized.has_next %}
+                    <a class="pagination-next" href="?page={{ finalized.number|add:'1' }}">Next page</a>
+                {% endif %}
+                <ul class="pagination-list">
+                    {% for i in finalized.paginator.page_range %}
+                        {% if finalized.number == i %}
+                        <li>
+                            <a class="pagination-link is-current" aria-label="Page 1" aria-current="page">{{i}}</a>
+                        </li>
+                        {% else %}
+                        <li>
+                            <a class="pagination-link" aria-label="" href="?page={{i}}">{{i}}</a>
+                        </li>
+                        {% endif %}                        
+                    {% endfor %}
+                </ul>
+              </nav>
+        {% endif %}
+
     </div>
     <footer class="card-footer">
         <p class="card-footer-item">

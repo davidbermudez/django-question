@@ -6,6 +6,7 @@ from .forms import CsvUploadForm, OneQuestionForm
 import datetime, csv, random, json
 from django.core import serializers
 from django.contrib import messages
+from django.core.paginator import Paginator
 
 
 def index(request):    
@@ -84,6 +85,7 @@ def privacy(request):
 
 @login_required
 def course(request, course_slug):
+    page = request.GET.get('page', 1)
     user = None
     if request.user.is_authenticated:
         user = request.user
@@ -91,9 +93,39 @@ def course(request, course_slug):
     # Intent en vigor?
     quizintent = None
     quizintent = QuizIntent.objects.filter(quizintent_user=user, quizintent_course=course)
+    quizfinalized = None
+    quizfinalized = QuizFinalized.objects.filter(quizfinalized_user=user, quizfinalized_course=course).order_by("quizfinalized_dateEnd")
+    paginator = Paginator(quizfinalized, per_page=5)
+    intentos = paginator.page(page)
+    ac = []
+    er = []
+    nc = []
+    for i in intentos:
+        aciertos = errores = nocontesta = 0
+        #print(i)        
+        #print(i.quizfinalized_success)
+        resp = json.loads(i.quizfinalized_success)
+        for j in resp:
+            if j == True:
+                aciertos = aciertos + 1
+            elif j == False:
+                errores = errores + 1
+            else:
+                nocontesta = nocontesta + 1
+        #    print("J:", j)
+        #print("Ac:", aciertos)
+        #print("Er:", errores)
+        #print("Nc:", nocontesta)
+        ac.append(aciertos)
+        er.append(errores)
+        nc.append(nocontesta)
     return render(request, 'course/course.html', {
         'course': course,
-        'intents': quizintent
+        'intents': quizintent,
+        'finalized': intentos,
+        'aciertos': ac,
+        'errores': er,
+        'nocontesta': nc
     })
 
 
@@ -291,7 +323,8 @@ def endQuiz(request):
                     quizfinalized_questions = quizintent.quizintent_questions,
                     quizfinalized_responses = quizintent.quizintent_responses,
                     quizfinalized_result = ptos,
-                    quizfinalized_success = json.dumps(success)
+                    quizfinalized_success = json.dumps(success),
+                    quizfinalized_dateInit = quizintent.quizintent_dateInit
                 )
                 quizfinalized.save()
                 quizintent.delete()
