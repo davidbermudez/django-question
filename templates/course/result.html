@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Inicio{% endblock %}
+{% block content %}
+<div></div>
+<h1 class="title">{{ course.course_name }}</h1>
+<h2 class="subtitle">Resultados</h2>
+
+{% for preguntas in questionsQuestions %}
+<div class="card-content">
+    <div class="content">
+        <p class="subtitle">
+            {{ forloop.counter }}. {{ preguntas.fields.question_text }}
+        </p>
+        
+        <div class="control ml-3">
+            
+            <p class="{% if preguntas.fields.question_valid == 1 %}has-text-weight-bold{% endif %}">
+                1. {{ preguntas.fields.question_response1 }}
+            </p>
+            <p class="{% if preguntas.fields.question_valid == 2 %}has-text-weight-bold{% endif %}">
+                2. {{ preguntas.fields.question_response2 }}
+            </p>
+            <p class="{% if preguntas.fields.question_valid == 3 %}has-text-weight-bold{% endif %}">
+                3. {{ preguntas.fields.question_response3 }}
+            </p>
+            <p class="{% if preguntas.fields.question_valid == 4 %}has-text-weight-bold{% endif %}">
+                4. {{ preguntas.fields.question_response4 }}
+            </p>
+        </div>        
+        {% with indice=forloop.counter %}
+        <div class="control mt-3">
+            Tu respuesta: {% for r in questionsResponses %}{% if forloop.counter == indice %}{{ r }}{% endif %}{% endfor %}
+        </div>
+        {% endwith %}
+    </div>
+</div>
+{% endfor %}
+{% endblock content %}
+
+{% block javascript %}
+<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+{% endblock %}

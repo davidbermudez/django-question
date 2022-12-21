@@ -7,6 +7,7 @@ import datetime, csv, random, json
 from django.core import serializers
 from django.contrib import messages
 from django.core.paginator import Paginator
+from django.urls import reverse
 
 
 def index(request):    
@@ -139,12 +140,12 @@ def csv_upload(request, course_slug):
         form = CsvUploadForm(request.POST, request.FILES)
         if form.is_valid():
             handle_uploaded_file(request.FILES['csvFile'])
-
-            with open('temporal.csv', 'r') as archivo:
-                read = csv.DictReader(archivo)
-                d = False
-                for row in read:
-                    if d:                        
+            
+            try:
+                with open('temporal.csv', 'r') as archivo:
+                    read = csv.DictReader(archivo)
+                    a = 0
+                    for row in read:                       
                         new_record = Question(
                             question_theme=row['MATERIA'],
                             question_chapter = row['TEMA'],
@@ -157,8 +158,13 @@ def csv_upload(request, course_slug):
                             question_course = course
                         )
                         new_record.save()
-                    d = True
-            return HttpResponseRedirect('/course/{course_slug}/')
+                        a = a + 1
+            except:
+                messages.add_message(request, messages.ERROR, 'Error al procesar el archivo')
+                return redirect('index')
+            messages.add_message(request, messages.INFO, 'Procesadas ' + str(a) + ' preguntas nuevas')
+            url = reverse('course', args=(course_slug,))
+            return HttpResponseRedirect(url)
     else:
         form = CsvUploadForm()
     return render(request, 'course/csv_upload.html', {
@@ -213,6 +219,24 @@ def init_quiz(request, course_slug, ordinal=0):
         'questionsList': questionsQuestions, #questionsList.quizintent_questions
         'questionsResponses' : questionsResponses,
         'questionResponse': questionsResponses[indice]
+    })
+
+
+@login_required
+def result_quiz(request, course_slug, id):
+    user = None
+    if request.user.is_authenticated:
+        user = request.user
+    course = get_object_or_404(Course, course_slug=course_slug)
+    questionsList = QuizFinalized.objects.get(quizfinalized_user=user, id=id)
+    questionsResponses = json.loads(questionsList.quizfinalized_responses)
+    questionsQuestions = json.loads(questionsList.quizfinalized_questions)
+    questionsSuccess = json.loads(questionsList.quizfinalized_success)
+    return render(request, 'course/result.html', {
+        'course': course,
+        'questionsQuestions': questionsQuestions,
+        'questionsResponses' : questionsResponses,
+        'questionsSuccess' : questionsSuccess,
     })
 
 

@@ -4,6 +4,8 @@
 <div ></div>
 <h1 class="title">{{ course.course_name }}</h1>
 <h2 class="subtitle">Completa el test</h2>
+
+
 {% for preguntas in questionsList %}
     {% if forloop.counter0 == indice %}        
         <div id="thequestion" class="card {% if questionResponse == None %}has-background-grey-lighter{% else %}has-background-warning{% endif %}">
@@ -35,7 +37,7 @@
                                 <input type="radio" id="Answer_4" name="Answer_{{question}}" value="4" onclick="selectOption({{ question }}, 4)"> {{ preguntas.fields.question_response4 }}
                             </label></p>
                         </div>
-                        <div class="control">
+                        <div class="control mt-3">
                             <div class="button" id="button_mark" onclick="selectOption({{ question }}, 0)" disabled>Desmarcar</div>
                         </div>
                     </form>
@@ -46,6 +48,8 @@
                     <button class="button is-primary ml-3" onclick="changeQuestion({{ question|add:'-1' }})" {% if question == '0' %}disabled{% endif %}>Anterior</button>
                     <button class="button is-primary ml-3" onclick="changeQuestion({{ question|add:'+1' }})" {% if question == '9' %}disabled{% endif %}>Siguiente</button>
                 </p>
+            </footer>
+            <footer class="card-footer">
                 <p class="card-footer-item">
                     <button class="button is-link" onclick="endQuiz()">Finalizar Test</button>
                 </p>
@@ -110,8 +114,8 @@
         });
     }
 
-    function selectOption(value, option){        
-        var URLactual = window.location;        
+    function selectOption(value, option){
+        var URLactual = window.location;
         $.ajax({
             url: '/sendOption/',
             type: 'POST',
@@ -127,16 +131,19 @@
             success: function (data) {                
                 if(data.result=="Success0"){                    
                     $("#thequestion").attr("class", "has-background-warning");
+                    document.getElementById("button_mark").removeAttribute("disabled");
                 }
                 if(data.result=="Success1"){
                     uncheck()
                     $("#thequestion").attr("class", "has-background-grey-lighter");
+                    $("#button_mark").attr("class", "button");
+                    $("#button_mark").attr("disabled", true);
                 }
             },
             error: function(xhr, status){
                 console.log(xhr, status)
             }
-        });
+        });        
     }
 
     function endQuiz(){

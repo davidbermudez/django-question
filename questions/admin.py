@@ -19,6 +19,8 @@ class QuestionAdmin(admin.ModelAdmin):
         'question_text'
     ]
 
+    search_fields = ['question_text']
+
 
 class CourseAdmin(admin.ModelAdmin):
     fields = ['course_name', 'course_type', 'course_slug']
