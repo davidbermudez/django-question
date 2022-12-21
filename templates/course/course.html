@@ -31,8 +31,7 @@
         {% if intents %}
             <p>Existe un intento anterior sin finalizar abierto el {{ intents.0.quizintent_dateInit|date:"d/m/Y H:i" }}. Pulse en Iniciar Test para continuar</p>
         {% endif %}
-        {% if finalized %}
-        {{aciertos.0}}{{errores.0}}{{nocontesta.0}}
+        {% if finalized %}        
             <table class="table">
                 <thead>
                     <tr>
@@ -46,12 +45,13 @@
                 <tbody>                
                 {% for quiz in finalized %}
                     <tr>
-                        <th>{{ quiz.quizfinalized_dateEnd|date:"d/m/Y H:i" }}</th>
-                        {% with indice=forloop.counter0 %}                            
+                        <td class="is-size-7">{{ quiz.quizfinalized_dateEnd|date:"d/m/y H:i" }}</td>
+                        {% with indice=forloop.counter0 %}
+
                             <td>{% cycle aciertos.0 aciertos.1 aciertos.2 aciertos.3 aciertos.4 %}</td>
                             <td>{% cycle errores.0 errores.1 errores.2 errores.3 errores.4 %}</td>
-                            <td>{% cycle nocontesta.0 nocontesta.1 nocontesta.2 nocontesta.3 nocontesta.4 %}</td>                            
-                            <td>{{ quiz.quizfinalized_result }}</td>
+                            <td>{% cycle nocontesta.0 nocontesta.1 nocontesta.2 nocontesta.3 nocontesta.4 %}</td>                    
+                            <th class="has-text-centered {% if quiz.quizfinalized_result < 5 %}has-text-danger{% endif %}">{{ quiz.quizfinalized_result }}</td>
                         {% endwith %}
                     </tr>
                 {% endfor %}
