@@ -223,12 +223,12 @@ def init_quiz(request, course_slug, ordinal=0):
 
 
 @login_required
-def result_quiz(request, course_slug, id):
+def result_quiz(request, course_slug, quizfinalized_id):
     user = None
     if request.user.is_authenticated:
         user = request.user
     course = get_object_or_404(Course, course_slug=course_slug)
-    questionsList = QuizFinalized.objects.get(quizfinalized_user=user, id=id)
+    questionsList = QuizFinalized.objects.get(quizfinalized_user=user, id=quizfinalized_id)
     questionsResponses = json.loads(questionsList.quizfinalized_responses)
     questionsQuestions = json.loads(questionsList.quizfinalized_questions)
     questionsSuccess = json.loads(questionsList.quizfinalized_success)
