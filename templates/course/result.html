@@ -29,12 +29,30 @@
         </div>        
         {% with indice=forloop.counter %}
         <div class="control mt-3">
-            Tu respuesta: {% for r in questionsResponses %}{% if forloop.counter == indice %}{{ r }}{% endif %}{% endfor %}
+            Tu respuesta: {% for r in questionsResponses %}
+                {% if forloop.counter == indice %}
+                    {{ r }}
+                    {% with resp=r|add:0 %}                    
+                    {% if preguntas.fields.question_valid == resp %}
+                        <div class="button is-small is-success">Correcto</div>
+                    {% else %}
+                        <div class="button is-small is-danger">Error</div>
+                    {% endif %}
+                    {% endwith %}
+                {% endif %}
+            {% endfor %}            
         </div>
         {% endwith %}
     </div>
 </div>
 {% endfor %}
+<div class="section">
+    <div class="content">
+        <span class="button is-success" onclick="location.href='{% url 'course' course.course_slug %}'">
+            Regresar
+        </span>
+    </div>
+</div>
 {% endblock content %}
 
 {% block javascript %}
