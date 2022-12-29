@@ -108,7 +108,8 @@
             dataType: 'json',
             success: function (data) {
                 if(data.result=="Success"){
-                    location.reload()
+                    //location.reload()
+                    window.location = window.location.href.split("#")[0];
                 }
             }            
         });

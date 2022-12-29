@@ -8,7 +8,7 @@ from django.core import serializers
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.urls import reverse
-from django.db.models import Count,Avg
+from django.db.models import Q
 import pprint
 
 
@@ -198,7 +198,7 @@ def init(request):
 
 
 @login_required
-def init_quiz(request, course_slug, section='<all>'):
+def init_quiz(request, course_slug):
     user = None
     if request.user.is_authenticated:
         user = request.user
@@ -265,13 +265,42 @@ def result_quiz(request, course_slug, quizfinalized_id):
 def createIntent(user_object, course_object, select_theme, request):
     '''
     create a list with 10 question random and save in database
-    '''    
-    # cargamos las preguntas de ese curso, desordenadas al azar
-    questions = Question.objects.filter(question_course=course_object, question_chapter__in=select_theme).order_by('?')[:10]
-    if len(questions)==0:
+    '''
+
+    '''
+    print(len(select_theme))
+    if len(select_theme)==0:
+        #todas
+        quest = Question.objects.filter(question_course=course_object).order_by('?')[:10]
+        print("Todas:", quest)
+    else:
+        quest = []
+        for th in select_theme:
+            print(th, type(th))
+            questions = Question.objects.filter(question_course=course_object, question_theme=th)
+            #questions = Question.objects.filter(Q(question_course=course_object)).filter(Q(question_theme=th)).values()
+            print("Questions", questions)
+            quest.extend(questions)
+            print("Quest", quest)
+    
+    if len(quest)==0:
         messages.add_message(request, messages.ERROR, '<strong>Error al extraer las preguntas</strong>', extra_tags='is-danger')
         return None
-    print("Preguntas", questions)
+    if len(quest)<10:
+        messages.add_message(request, messages.ERROR, '<strong>No existen suficientes preguntas de esta categoría</strong>', extra_tags='is-danger')
+        return None
+    elif len(quest)>10:
+        # seleccionamos 10 al azar
+        azar = []
+        for i in range(10):        
+            element = random.choice(quest)
+            while element in azar:
+                element = random.choice(quest)
+            azar.append(element)
+    
+    print(azar)
+    '''
+    questions = Question.objects.filter(question_course=course_object, question_theme__in=select_theme).order_by('?')[:10]
     # create Object database    
     list_responses = (None,None,None,None,None,None,None,None,None,None)
     serialized_lre = serializers.serialize('json', questions)
@@ -283,6 +312,7 @@ def createIntent(user_object, course_object, select_theme, request):
         quizintent_active='0'
     )
     new_record.save()
+    return 1
     
 
 def processOption(request):

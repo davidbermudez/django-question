@@ -19,7 +19,7 @@ class QuestionAdmin(admin.ModelAdmin):
         'question_text'
     ]
 
-    search_fields = ['question_text']
+    search_fields = ['question_text', 'question_theme']
 
 
 class CourseAdmin(admin.ModelAdmin):
