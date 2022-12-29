@@ -2,12 +2,14 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.contrib.auth.decorators import login_required
 from .models import Course, Registration, Question, QuizIntent, QuizFinalized
-from .forms import CsvUploadForm, OneQuestionForm
+from .forms import CsvUploadForm, OneQuestionForm, QuizInit
 import datetime, csv, random, json
 from django.core import serializers
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.urls import reverse
+from django.db.models import Count,Avg
+import pprint
 
 
 def index(request):    
@@ -120,13 +122,20 @@ def course(request, course_slug):
         ac.append(aciertos)
         er.append(errores)
         nc.append(nocontesta)
+    
+    # Enviar form 
+    form = QuizInit()
+    # combo de  temas
+    temas = Question.objects.filter(question_course=course).values('question_theme').distinct().order_by('question_theme')
     return render(request, 'course/course.html', {
         'course': course,
         'intents': quizintent,
         'finalized': intentos,
         'aciertos': ac,
         'errores': er,
-        'nocontesta': nc
+        'nocontesta': nc,
+        'themes': temas,
+        'form': form
     })
 
 
@@ -189,29 +198,42 @@ def init(request):
 
 
 @login_required
-def init_quiz(request, course_slug, ordinal=0):
+def init_quiz(request, course_slug, section='<all>'):
     user = None
     if request.user.is_authenticated:
         user = request.user
     course = get_object_or_404(Course, course_slug=course_slug)
-    if request.method == 'POST':
-        print("hola")
+    if request.method == 'POST':        
+        print(request.POST)
+        # recabar los datos de la selección de temas
+        select_theme = request.POST.getlist('select_theme')
+        result=createIntent(user, course, select_theme, request)
+        if result == None:
+            return redirect('course', course_slug=course_slug)
+        questionsList = QuizIntent.objects.get(quizintent_user=user, quizintent_course=course)
+        question_active = '0'
+        # Message
+        messages.add_message(request, messages.INFO, '<strong>Recuerde:</strong><br/>Preguntas correctas: 1 pt<br/>Preguntas incorrectas: -1 pt<br/>Preguntas no contestadas: 0 pts', extra_tags='is-info')
     else:
+        questionsList = QuizIntent.objects.get(quizintent_user=user, quizintent_course=course)
+        question_active = questionsList.quizintent_active
+        '''
         # Buscamos en la base de datos el intento anterior para este usuario
         try:
             questionsList = QuizIntent.objects.get(quizintent_user=user, quizintent_course=course)
             question_active = questionsList.quizintent_active            
         except QuizIntent.DoesNotExist:
             # Si no existe, preparamos un conjunto de 10 preguntas al azar desde Question
-            createIntent(user, course)
-            questionsList = QuizIntent.objects.get(quizintent_user=user, quizintent_course=course)
+            createIntent(user, course, section)            
+            questionsList = QuizIntent.objects.get(quizintent_user=user, quizintent_course=course)            
             question_active = '0'
             # Message
             messages.add_message(request, messages.INFO, '<strong>Recuerde:</strong><br/>Preguntas correctas: 1 pt<br/>Preguntas incorrectas: -1 pt<br/>Preguntas no contestadas: 0 pts', extra_tags='is-info')
-        #convert a dict/list
-        questionsResponses = json.loads(questionsList.quizintent_responses)
-        questionsQuestions = json.loads(questionsList.quizintent_questions)
-        indice = int(question_active)
+        '''
+    #convert a dict/list
+    questionsResponses = json.loads(questionsList.quizintent_responses)
+    questionsQuestions = json.loads(questionsList.quizintent_questions)
+    indice = int(question_active)
     return render(request, 'course/quiz.html', {
         'course': course,
         'question': question_active,
@@ -240,12 +262,16 @@ def result_quiz(request, course_slug, quizfinalized_id):
     })
 
 
-def createIntent(user_object, course_object):
+def createIntent(user_object, course_object, select_theme, request):
     '''
     create a list with 10 question random and save in database
     '''    
     # cargamos las preguntas de ese curso, desordenadas al azar
-    questions = Question.objects.filter(question_course=course_object).order_by('?')[:10]    
+    questions = Question.objects.filter(question_course=course_object, question_chapter__in=select_theme).order_by('?')[:10]
+    if len(questions)==0:
+        messages.add_message(request, messages.ERROR, '<strong>Error al extraer las preguntas</strong>', extra_tags='is-danger')
+        return None
+    print("Preguntas", questions)
     # create Object database    
     list_responses = (None,None,None,None,None,None,None,None,None,None)
     serialized_lre = serializers.serialize('json', questions)

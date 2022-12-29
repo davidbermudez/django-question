@@ -23,13 +23,14 @@
         </footer>
     </div>
 {% endif %}
+
 <div class="card">
     <div class="card-content">
         <p class="title">
             Opciones disponibles
         </p>
         {% if intents %}
-            <p>Existe un intento anterior sin finalizar abierto el {{ intents.0.quizintent_dateInit|date:"d/m/Y H:i" }}. Pulse en Iniciar Test para continuar</p>
+            
         {% endif %}
         {% if finalized %}        
             <table class="table is-striped">
@@ -81,18 +82,49 @@
         {% endif %}
 
     </div>
+            
     <footer class="card-footer">
-        <p class="card-footer-item">
-            <span class="button is-link" onclick="location.href='{% url 'init_quiz' course.course_slug %}'">
-                {% if intents %}Continuar Test{% else %}Iniciar Nuevo Test{% endif %}
-            </span>
-        </p>
-        <p class="card-footer-item">
-            <span class="button is-warning" onclick="location.href='{% url 'csv_upload' course.course_slug %}'">
-                Ver Resultados
-            </span>
-        </p>
+        <div class="card-footer-item">
+            {% if intents %}
+            
+                <p>Existe un intento anterior sin finalizar abierto el {{ intents.0.quizintent_dateInit|date:"d/m/Y H:i" }}. Pulse en <a href="{% url 'init_quiz' course_slug=course.course_slug %}" class="button is-link is-small">Continuar Test</a> para continuar</p>
+            {% else %}
+            <div class="tile is-ancestor">                
+                <form action='{% url 'init_quiz' course_slug=course.course_slug %}' method="post">
+                    {% csrf_token %}
+                    <div class="tile">
+                        <div class="tile is-6">
+                            <label class="label">Añada temas al cuestionario</label>
+                        </div>
+                        <div class="tile is-6">
+                            <div class="select is-multiple">
+                                <ul id="id_select_theme">
+                                    {% for theme in themes %}
+                                        <li>
+                                            <label for="id_select_theme_{{ forloop.counter }}">
+                                                <input type="checkbox" name="select_theme" value="{{ theme.question_theme }}" id="id_select_theme_{{ forloop.counter }}">
+                                                {{ theme.question_theme }}
+                                            </label>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tile is-6 has-text-centered">     
+                        <!--<span class="button is-link" onclick="location.href='{% url 'init_quiz' course_slug=course.course_slug %}'">-->
+                        <button class="button is-link" type="submit">
+                            {% if intents %}Continuar Test{% else %}Iniciar Nuevo Test{% endif %}
+                        </button>
+                    </div>
+                </form>                
+            </div>
+            {% endif %}           
+        </div>
     </footer>
+    
+        
+    
     <footer class="card-footer">
         <p class="card-footer-item">
             <span class="button is-danger" onclick="location.href='{% url 'csv_upload' course.course_slug %}'">
@@ -108,6 +140,9 @@
 </div>
 {% endblock content %}
 {% block javascript %}
-    <script>        
+    <script>
+        function init_quiz(){
+            $.redirect('{% url 'init_quiz' course_slug=course.course_slug %}')
+        }
     </script>
 {% endblock %}

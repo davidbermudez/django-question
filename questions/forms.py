@@ -19,8 +19,13 @@ class OneQuestionForm(ModelForm):
             'question_response4'
         ]
 
+
 class QuizForm(forms.Form):
     quiz_option1 = forms.ChoiceField()
     quiz_option2 = forms.ChoiceField()
     quiz_option3 = forms.ChoiceField()
     quiz_option4 = forms.ChoiceField()
+
+
+class QuizInit(forms.Form):
+    select_theme = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple)
