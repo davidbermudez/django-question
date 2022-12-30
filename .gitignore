@@ -3,6 +3,5 @@ data/
 app/secret.py
 .env
 docker-compose.yml
-app/settings.py
 static/
 staticfiles/
