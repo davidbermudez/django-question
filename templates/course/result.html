@@ -6,14 +6,18 @@
 <h2 class="subtitle">Resultados</h2>
 
 {% for preguntas in questionsQuestions %}
-<div class="card-content">
-    <div class="content">
-        <p class="subtitle">
+<div class="card mt-3">
+    <div class="card-content">
+        <p class="title">
             {{ forloop.counter }}. {{ preguntas.fields.question_text }}
         </p>
-        
+        <p class="subtitle">
+            {{ preguntas.fields.question_theme }}. {{ preguntas.fields.question_chapter }}
+        </p>
+    </div>
+    <div class="card-content">
         <div class="control ml-3">
-            
+            <p>{{ preguntas.pk }}</p>
             <p class="{% if preguntas.fields.question_valid == 1 %}has-text-weight-bold{% endif %}">
                 1. {{ preguntas.fields.question_response1 }}
             </p>
@@ -26,24 +30,41 @@
             <p class="{% if preguntas.fields.question_valid == 4 %}has-text-weight-bold{% endif %}">
                 4. {{ preguntas.fields.question_response4 }}
             </p>
-        </div>        
-        {% with indice=forloop.counter %}
-        <div class="control mt-3">
-            Tu respuesta: {% for r in questionsResponses %}
-                {% if forloop.counter == indice %}
-                    {{ r }}
-                    {% with resp=r|add:0 %}                    
-                    {% if preguntas.fields.question_valid == resp %}
-                        <div class="button is-small is-success">Correcto</div>
-                    {% else %}
-                        <div class="button is-small is-danger">Error</div>
-                    {% endif %}
-                    {% endwith %}
-                {% endif %}
-            {% endfor %}            
         </div>
-        {% endwith %}
     </div>
+    <div class="card-content">
+        {% if preguntas.fields.question_explanation %}
+            <div class="box has-background-light">
+                <span class="button ml-3 is-small is-warning">Saber mas...</span>
+                <p>{{ preguntas.fields.question_explanation }}</p>
+            </div>
+        {% endif %} 
+    </div>
+    {% with indice=forloop.counter %}
+    <div class="card-content">
+        <div class="level">
+            <div class="level-left">Tu respuesta:
+                {% for r in questionsResponses %}
+                {% if forloop.counter == indice %}
+                {{ r }}
+                {% with resp=r|add:0 %}
+                {% if preguntas.fields.question_valid == resp %}
+                <span class="button ml-3 is-small is-success">Correcto</span>
+                {% else %}
+                <span class="button ml-3 is-small is-danger">Error</span>
+                {% endif %}
+                {% endwith %}
+                {% endif %}
+                {% endfor %}
+            </div>
+            <div class="level-left">
+                {% if user.is_staff %}
+                <button class="button ml-3 is-small is-link" onclick="location.href='{% url 'question_edit' preguntas.pk %}'">Editar</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endwith %}
 </div>
 {% endfor %}
 <div class="section">
@@ -56,5 +77,6 @@
 {% endblock content %}
 
 {% block javascript %}
-<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+    crossorigin="anonymous"></script>
 {% endblock %}

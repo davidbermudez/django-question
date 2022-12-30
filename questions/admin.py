@@ -10,7 +10,8 @@ class QuestionAdmin(admin.ModelAdmin):
         'question_response2',
         'question_response3',
         'question_response4',
-        'question_valid'
+        'question_valid',
+        'question_explanation'
     ]
     
     list_display = ['question_course',

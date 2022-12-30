@@ -4,36 +4,61 @@
 
 Clone repository:
 
-
     git clone https://github.com/davidbermudez/django-question.git
 
 
+## Create files configuration
+
+### .env
+
+	nano .env
+
+Content:
+
+	POSTGRES_DB=questions
+	POSTGRES_USER=
+	POSTGRES_PASSWORD=
+	
+### secret.py
+
+	nano app/secret.py
+
+Content:
+
+	SECRET_KEY = ''
+	POSTGRES_DB = 'questions'
+	POSTGRES_USER = ''
+	POSTGRES_PASSWORD = ''
+	POSTGRES_HOST = 'db' (or IP server PostgreSQL)	
+
 ## Launch Containers
 
-Go to directory django-question
-
+### Go to directory django-question
 
     cd django-question
 
 
-Create file app/secret.py
-This file must contain the SECRET_KEY variable to prevent it from being shared to the repository
-
-
-    nano app/secret.py
-
-
-Launch containers
+### Launch containers:
 
 First time:
     
-    docker-compose build .
+    docker-compose build
+
     
 Init container:
 
     docker-compose up
 
-## Configure database
+Access to container in ejecution:
+
+	docker exec -it django-question_web_1 bash
+
+
+## Install dependencies
+
+pip install -r requirements.txt
+
+## Configure database (in server local)
 
 ### Create migration
 
@@ -43,61 +68,3 @@ Init container:
 
     python manage.py createsuperuser
 
-## Install bulma css
-
-Install the python package django-bulma from pip
-
-    pip install django-bulma
-
-Add to INSTALLED_APPS in your settings.py:
-
-    'bulma',
-
-
-Create user test
-John
-zFY8PmQDHmiyrBB
-
-
-https://developer.mozilla.org/es/docs/Learn/Server-side/Django/Authentication
-
-## OAuth Google
-
-https://www.section.io/engineering-education/django-google-oauth/
-
-Install django-allauth
-
-    pip install django-allauth
-
-Add to INSTALLED_APPS in your settings.py:
-
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
-
-Add to bottom in your settings.py:
-
-    AUTHENTICATION_BACKENDS = [
-        'django.contrib.auth.backends.ModelBackend',
-        'allauth.account.auth_backends.AuthenticationBackend'
-    ]
-
-Then set Google as the OAuth provider under SOCIALACCOUNT_PROVIDERS configurations.
-
-    SOCIALACCOUNT_PROVIDERS = {
-        'google': {
-            'SCOPE': [
-                'profile',
-                'email',
-            ],
-            'AUTH_PARAMS': {
-                'access_type': 'online',
-            }
-        }
-    }
-
-    SITE_ID = 2
-
-    LOGIN_REDIRECT_URL = '/'
-    LOGOUT_REDIRECT_URL = '/'

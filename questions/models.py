@@ -48,6 +48,7 @@ class Question(models.Model):
         'Course', 
         on_delete=models.CASCADE,
         null=True)
+    question_explanation = models.TextField(null=True)
 
     def __str__(self):
         return self.question_text

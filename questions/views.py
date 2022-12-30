@@ -10,6 +10,7 @@ from django.core.paginator import Paginator
 from django.urls import reverse
 from django.db.models import Q
 import pprint
+from django.core.exceptions import PermissionDenied
 
 
 def index(request):    
@@ -164,6 +165,7 @@ def csv_upload(request, course_slug):
                             question_response3 = row['RESPUESTA3'],
                             question_response4 = row['RESPUESTA4'],
                             question_valid = row['CORRECTA'],
+                            question_explanation = row['EXPLICACION'],
                             question_course = course
                         )
                         new_record.save()
@@ -313,7 +315,54 @@ def createIntent(user_object, course_object, select_theme, request):
     )
     new_record.save()
     return 1
-    
+
+
+@login_required
+def question_edit(request, pk):
+    user = None
+    if request.user.is_authenticated:
+        user = request.user
+        if not user.is_staff:
+            raise PermissionDenied()
+        # Tiene permisos, continuar
+        if request.method == 'POST':
+            form = OneQuestionForm(request.POST)
+            if form.is_valid():
+                print(request.POST)
+                question_update=Question.objects.get(id=pk)
+                question_update.question_response1 = form.cleaned_data['question_response1']
+                question_update.question_response2 = form.cleaned_data['question_response2']
+                question_update.question_response3 = form.cleaned_data['question_response3']
+                question_update.question_response4 = form.cleaned_data['question_response4']
+                question_update.question_explanation = form.cleaned_data['question_explanation']
+                question_update.save()                
+                messages.add_message(request, messages.SUCCESS, 'Pregunta Actualizada', extra_tags='is-success')
+                # Ahora, vamos a tratar de actualizar todos los QuizFinalized que contengan esta pregunta, actualizando si procede el cambio en el resultado
+                updateResultsFinalized(question_update)
+            else:
+                messages.add_message(request, messages.ERROR, 'Error formulario', extra_tags='is-danger')
+            url = form.cleaned_data['referer']
+            return HttpResponseRedirect(url)
+        else:
+            if request.META['HTTP_REFERER']:
+                referer = request.META['HTTP_REFERER']
+            else:
+                raise PermissionDenied()
+            question = Question.objects.get(id=pk)            
+            form = OneQuestionForm(instance=question)            
+        return render(request, 'course/question_edit.html', {
+            'form': form,
+            'question': question,
+            'referer': referer,
+        })
+
+
+def updateResultsFinalized(question):
+    print("Question", question)
+    print("Question", question.id)
+    resultados = QuizFinalized.objects.filter(quizfinalized_questions__pk=question.id)
+    print("Resultados:", resultados)
+
 
 def processOption(request):
     if request.is_ajax():

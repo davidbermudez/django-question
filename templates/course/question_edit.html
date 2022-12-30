@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}Editar pregunta{% endblock %}
+{% block content %}
+    <h1 class="title">Editar pregunta nº {{ question.id }}</h1>
+    <h2 class="subtitle">{{ question.question_theme }}. {{ question.question_chapter }}</h2>        
+    <form method="POST">
+        {%  csrf_token %}
+        <input type="hidden" name="referer" value="{{ referer }}">
+        <div class="field">
+            <label class="label">Pregunta</label>
+            <div class="control">
+                <textarea class="textarea is-medium is-primary" name="question_text" cols="40" rows="3" required id="id_question_text">{{ form.question_text.value }}</textarea>
+            </div>
+        </div>
+        <div class="field">
+            <label class="label">Respuestas</label>
+            <div class="columns">
+                <div class="column is-one-fifth is-centered">
+                    <div class="control ">                        
+                        <span class="button {% if question.question_valid == 1 %}is-success{% else %}is-warning{% endif %}">1</span>
+                    </div>
+                </div>
+                <div class="column is-four-fifths">
+                    <div class="control ">
+                        <textarea class="textarea is-medium is-link" name="question_response1" cols="40" rows="3" required id="id_question_response1">{{ form.question_response1.value }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="columns">
+                <div class="column is-one-fifth is-centered">
+                    <div class="control ">                        
+                        <span class="button {% if question.question_valid == 2 %}is-success{% else %}is-warning{% endif %}">2</span>
+                    </div>
+                </div>
+                <div class="column is-four-fifths">
+                    <div class="control ">
+                        <textarea class="textarea is-medium is-link" name="question_response2" cols="40" rows="3" required id="id_question_response2">{{ form.question_response2.value }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="columns">
+                <div class="column is-one-fifth is-centered">
+                    <div class="control ">                        
+                        <span class="button {% if question.question_valid == 3 %}is-success{% else %}is-warning{% endif %}">3</span>
+                    </div>
+                </div>
+                <div class="column is-four-fifths">
+                    <div class="control ">
+                        <textarea class="textarea is-medium is-link" name="question_response3" cols="40" rows="3" required id="id_question_response3">{{ form.question_response3.value }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="columns">
+                <div class="column is-one-fifth is-centered">
+                    <div class="control ">                        
+                        <span class="button {% if question.question_valid == 4 %}is-success{% else %}is-warning{% endif %}">4</span>
+                    </div>
+                </div>
+                <div class="column is-four-fifths">
+                    <div class="control ">
+                        <textarea class="textarea is-medium is-link" name="question_response4" cols="40" rows="3" required id="id_question_response4">{{ form.question_response4.value }}</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="field">
+            <label class="label">Explicación</label>
+            <div class="control">
+                <textarea class="textarea is-medium is-primary" name="question_explanation" cols="40" rows="3" id="id_question_explanation">{{ form.question_explanation.value|default_if_none:'' }}</textarea>
+            </div>
+        </div>
+        <div class="field is-grouped">
+            <div class="control">
+                <button class="button is-link">Actualizar Pregunta</button>
+            </div>            
+        </div>
+    </form>
+{% endblock %}
