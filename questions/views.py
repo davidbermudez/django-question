@@ -337,7 +337,7 @@ def question_edit(request, pk):
                 question_update.question_explanation = form.cleaned_data['question_explanation']
                 question_update.save()                
                 messages.add_message(request, messages.SUCCESS, 'Pregunta Actualizada', extra_tags='is-success')
-                # Ahora, vamos a tratar de actualizar todos los QuizFinalized que contengan esta pregunta, actualizando si procede el cambio en el resultado
+                # Ahora, vamos a tratar de actualizar todos los QuizFinalized que contengan esta pregunta, actualizando si procede, también el resultado del test
                 updateResultsFinalized(question_update)
             else:
                 messages.add_message(request, messages.ERROR, 'Error formulario', extra_tags='is-danger')
@@ -358,10 +358,29 @@ def question_edit(request, pk):
 
 
 def updateResultsFinalized(question):
-    print("Question", question)
-    print("Question", question.id)
-    resultados = QuizFinalized.objects.filter(quizfinalized_questions__pk=question.id)
-    print("Resultados:", resultados)
+    print("Question", question)    
+    n = question.id
+    print("Question", n)
+    # Search regular expresion: pk\": XXXX 
+    string_search = r'pk\\\":[[:blank:]]' + str(n)
+    resultados = QuizFinalized.objects.filter(quizfinalized_questions__regex=string_search)
+    for r in resultados:
+        quizfinalized_questions = {}
+        quizfinalized_questions = json.loads(r.quizfinalized_questions)
+        # localizar la pregunta dentro del intento finalizado:
+        for t in quizfinalized_questions:
+            if t['pk']==n:
+                # Localizado!! cambiar valores antiguos por los nuevos
+                t['fields']['question_text']=question.question_text
+                t['fields']['question_response1']=question.question_response1
+                t['fields']['question_response2']=question.question_response2
+                t['fields']['question_response3']=question.question_response3
+                t['fields']['question_response4']=question.question_response4
+                t['fields']['question_explanation']=question.question_explanation
+        # reconvertir a JSON y guardar objeto Quizfinalized
+        new_quizfinalized_questions = json.dumps(quizfinalized_questions)
+        r.quizfinalized_questions = new_quizfinalized_questions
+        r.save()
 
 
 def processOption(request):
