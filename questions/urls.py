@@ -18,6 +18,7 @@ urlpatterns = [
     path('csv_upload/<slug:course_slug>/', views.csv_upload, name='csv_upload'),
     path('init_quiz/<slug:course_slug>/', views.init_quiz, name='init_quiz'),
     path('question_edit/<int:pk>/', views.question_edit, name='question_edit'),
+    path('quiz_retry/<int:quizfinalized_id>/', views.retry_quiz, name='retry_quiz'),
     #path('init_quiz/<slug:course_slug>/', views.init_quiz, name='init_quiz'),
     path('result_quiz/<slug:course_slug>/<int:quizfinalized_id>', views.result_quiz, name='result_quiz'),
     #re_path(r'^registration/(?P<slug>[-\w]*)/$', views.registration, name='registration')

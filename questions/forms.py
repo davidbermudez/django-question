@@ -16,7 +16,8 @@ class OneQuestionForm(ModelForm):
             'question_response2',
             'question_response3',
             'question_response4',
-            'question_explanation'
+            'question_explanation',
+            'question_valid'
         ]
 
     def __init__(self, *args, **kwargs):

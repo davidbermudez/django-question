@@ -247,21 +247,67 @@ def init_quiz(request, course_slug):
 
 
 @login_required
+def retry_quiz(request, quizfinalized_id):
+    url = request.META['HTTP_REFERER']
+    print(url)
+    user = None
+    if request.user.is_authenticated:
+        user = request.user
+        try:
+            quizfinalized = QuizFinalized.objects.get(quizfinalized_user=user, id=quizfinalized_id)
+        except QuizFinalized.DoesNotExist:
+            messages.add_message(request, messages.ERROR, 'Error al recuperar el test', extra_tags='is-danger')
+            return HttpResponseRedirect(url)
+        # trasladar datos desde QuizFinalized a QuizIntent
+        questionintent = QuizIntent.objects.filter(quizintent_user=user)
+        if len(questionintent)==0:
+            list_responses = (None,None,None,None,None,None,None,None,None,None)
+            new_record = QuizIntent(
+                quizintent_user=user,
+                quizintent_course=quizfinalized.quizfinalized_course,
+                quizintent_questions=quizfinalized.quizfinalized_questions,
+                quizintent_responses=json.dumps(list_responses),
+                quizintent_active='0'
+            )
+            new_record.save()
+            messages.add_message(request, messages.INFO, 'Ahora puede reintentar el cuestionario', extra_tags='is-info')            
+            url = reverse('init_quiz', args=(quizfinalized.quizfinalized_course.course_slug,))
+            return HttpResponseRedirect(url)            
+            '''
+            return render(request, 'course/quiz.html', {
+                'course': new_record.quizintent_course,
+                'question': 0,
+                'indice': 0,
+                'questionsList': new_record.quizintent_questions, #questionsList.quizintent_questions
+                'questionsResponses' : new_record.quizintent_responses,
+                'questionResponse': None
+            })
+            '''
+        else:
+            messages.add_message(request, messages.WARNING, 'Ya existe un intento si finalizar. Acabe primero el cuestionario', extra_tags='is-warnning')
+    else:
+        raise PermissionDenied()
+
+
+@login_required
 def result_quiz(request, course_slug, quizfinalized_id):
     user = None
     if request.user.is_authenticated:
         user = request.user
-    course = get_object_or_404(Course, course_slug=course_slug)
-    questionsList = QuizFinalized.objects.get(quizfinalized_user=user, id=quizfinalized_id)
-    questionsResponses = json.loads(questionsList.quizfinalized_responses)
-    questionsQuestions = json.loads(questionsList.quizfinalized_questions)
-    questionsSuccess = json.loads(questionsList.quizfinalized_success)
-    return render(request, 'course/result.html', {
-        'course': course,
-        'questionsQuestions': questionsQuestions,
-        'questionsResponses' : questionsResponses,
-        'questionsSuccess' : questionsSuccess,
-    })
+        course = get_object_or_404(Course, course_slug=course_slug)
+        questionsList = QuizFinalized.objects.get(quizfinalized_user=user, id=quizfinalized_id)
+        questionsResponses = json.loads(questionsList.quizfinalized_responses)
+        questionsQuestions = json.loads(questionsList.quizfinalized_questions)
+        questionsSuccess = json.loads(questionsList.quizfinalized_success)
+        return render(request, 'course/result.html', {
+            'course': course,
+            'questionsQuestions': questionsQuestions,
+            'questionsResponses' : questionsResponses,
+            'questionsSuccess' : questionsSuccess,
+            'quizid': questionsList.id
+        })
+    else:
+        raise PermissionDenied()
 
 
 def createIntent(user_object, course_object, select_theme, request):
@@ -330,11 +376,13 @@ def question_edit(request, pk):
             if form.is_valid():
                 print(request.POST)
                 question_update=Question.objects.get(id=pk)
+                question_update.question_text = form.cleaned_data['question_text']
                 question_update.question_response1 = form.cleaned_data['question_response1']
                 question_update.question_response2 = form.cleaned_data['question_response2']
                 question_update.question_response3 = form.cleaned_data['question_response3']
                 question_update.question_response4 = form.cleaned_data['question_response4']
                 question_update.question_explanation = form.cleaned_data['question_explanation']
+                question_update.question_valid = int(form.cleaned_data['question_valid'])
                 question_update.save()                
                 messages.add_message(request, messages.SUCCESS, 'Pregunta Actualizada', extra_tags='is-success')
                 # Ahora, vamos a tratar de actualizar todos los QuizFinalized que contengan esta pregunta, actualizando si procede, también el resultado del test
@@ -366,7 +414,7 @@ def updateResultsFinalized(question):
     resultados = QuizFinalized.objects.filter(quizfinalized_questions__regex=string_search)
     for r in resultados:
         quizfinalized_questions = {}
-        quizfinalized_questions = json.loads(r.quizfinalized_questions)
+        quizfinalized_questions = json.loads(r.quizfinalized_questions)        
         # localizar la pregunta dentro del intento finalizado:
         for t in quizfinalized_questions:
             if t['pk']==n:
@@ -377,9 +425,37 @@ def updateResultsFinalized(question):
                 t['fields']['question_response3']=question.question_response3
                 t['fields']['question_response4']=question.question_response4
                 t['fields']['question_explanation']=question.question_explanation
+                t['fields']['question_valid']=question.question_valid
         # reconvertir a JSON y guardar objeto Quizfinalized
         new_quizfinalized_questions = json.dumps(quizfinalized_questions)
         r.quizfinalized_questions = new_quizfinalized_questions
+        r.save()
+    for r in resultados:
+        respuestas = json.loads(r.quizfinalized_responses)
+        preguntas = json.loads(r.quizfinalized_questions)
+        i = 0
+        ptos = 0
+        nc = 0
+        aciertos = 0
+        errores = 0
+        success = []
+        for p in respuestas:
+            pregunta = preguntas[i]['fields']['question_valid']
+            if p == None:
+                ptos = ptos
+                success.append(None)
+                nc = nc + 1
+            elif p == str(pregunta):
+                ptos = ptos + 1
+                success.append(True)
+                aciertos = aciertos + 1
+            else:
+                ptos = ptos - 1
+                success.append(False)
+                errores = errores + 1
+            i = i + 1
+        r.quizfinalized_result = ptos
+        r.quizfinalized_success = json.dumps(success)
         r.save()
 
 
@@ -447,8 +523,6 @@ def endQuiz(request):
                 success = []
                 for p in respuestas:
                     pregunta = preguntas[i]['fields']['question_valid']
-                    print("Pregunta", type(pregunta))
-                    print("Respuesta",type(p))                    
                     if p == None:
                         ptos = ptos
                         success.append(None)
