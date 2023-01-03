@@ -6,6 +6,7 @@
     <form method="POST">
         {%  csrf_token %}
         <input type="hidden" name="referer" value="{{ referer }}">
+        <input type="hidden" id="hiddenValue" name="question_valid" value="{{ question.question_valid }}">
         <div class="field">
             <label class="label">Pregunta</label>
             <div class="control">
@@ -15,13 +16,13 @@
         <div class="field">
             <label class="label">Respuestas</label>
             <div class="columns">
-                <div class="column is-one-fifth is-centered">
-                    <div class="control ">                        
-                        <span class="button {% if question.question_valid == 1 %}is-success{% else %}is-warning{% endif %}">1</span>
+                <div class="column is-one-fifth">
+                    <div class="control">     
+                        <span onclick="changeOption(this,1)" class="button {% if question.question_valid == 1 %}is-success{% else %}is-warning{% endif %}">1</span>
                     </div>
                 </div>
-                <div class="column is-four-fifths">
-                    <div class="control ">
+                <div class="column">          
+                    <div class="control">
                         <textarea class="textarea is-medium is-link" name="question_response1" cols="40" rows="3" required id="id_question_response1">{{ form.question_response1.value }}</textarea>
                     </div>
                 </div>
@@ -30,7 +31,7 @@
             <div class="columns">
                 <div class="column is-one-fifth is-centered">
                     <div class="control ">                        
-                        <span class="button {% if question.question_valid == 2 %}is-success{% else %}is-warning{% endif %}">2</span>
+                        <span onclick="changeOption(this,2)" class="button {% if question.question_valid == 2 %}is-success{% else %}is-warning{% endif %}">2</span>
                     </div>
                 </div>
                 <div class="column is-four-fifths">
@@ -43,7 +44,7 @@
             <div class="columns">
                 <div class="column is-one-fifth is-centered">
                     <div class="control ">                        
-                        <span class="button {% if question.question_valid == 3 %}is-success{% else %}is-warning{% endif %}">3</span>
+                        <span onclick="changeOption(this,3)" class="button {% if question.question_valid == 3 %}is-success{% else %}is-warning{% endif %}">3</span>
                     </div>
                 </div>
                 <div class="column is-four-fifths">
@@ -56,7 +57,7 @@
             <div class="columns">
                 <div class="column is-one-fifth is-centered">
                     <div class="control ">                        
-                        <span class="button {% if question.question_valid == 4 %}is-success{% else %}is-warning{% endif %}">4</span>
+                        <span onclick="changeOption(this,4)" class="button {% if question.question_valid == 4 %}is-success{% else %}is-warning{% endif %}">4</span>
                     </div>
                 </div>
                 <div class="column is-four-fifths">
@@ -78,4 +79,17 @@
             </div>            
         </div>
     </form>
+{% endblock %}
+{% block javascript %}
+<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+<script>
+    function changeOption(element,value){
+        // cambiar color a botones y activar
+        $("span").each(function(i){            
+            $(this).attr("class", "button is-warning");
+        });
+        $(element).attr("class", "button is-success");
+        $("#hiddenValue").val(value)
+    }
+</script>
 {% endblock %}

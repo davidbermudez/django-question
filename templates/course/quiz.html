@@ -5,7 +5,6 @@
 <h1 class="title">{{ course.course_name }}</h1>
 <h2 class="subtitle">Completa el test</h2>
 
-
 {% for preguntas in questionsList %}
     {% if forloop.counter0 == indice %}        
         <div id="thequestion" class="card {% if questionResponse == None %}has-background-grey-lighter{% else %}has-background-warning{% endif %}">

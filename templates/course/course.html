@@ -89,17 +89,15 @@
             <div class="content">
                 <form action='{% url 'init_quiz' course_slug=course.course_slug %}' method="post">
                     {% csrf_token %}
-                    <div class="box">
-                    <div>
-                        <label class="label">Añada temas al cuestionario</label>
-                    </div>
-
-                    <div>
-                        <div class="select is-multiple">
-                            <div class="is-flex">
+                    <!--<div class="box">-->
+                        <div class="subtitle">
+                            Añada temas al cuestionario
+                        </div>
+                        
+                        <div class="select is-multiple">                            
                             <ul id="id_select_theme">
                                 {% for theme in themes %}
-                                    <li class="">
+                                    <li>
                                         <label for="id_select_theme_{{ forloop.counter }}">
                                             <input type="checkbox" name="select_theme" value="{{ theme.question_theme }}" id="id_select_theme_{{ forloop.counter }}">
                                             {{ theme.question_theme }}
@@ -108,12 +106,11 @@
                                 {% endfor %}
                             </ul>
                         </div>
+                        
+                        <div class="is-6 has-text-centered">                        
+                            <button class="button is-link" type="submit">Iniciar Nuevo Test</button>
                         </div>
-                    </div>                
-                    <div class="is-6 has-text-centered">                        
-                        <button class="button is-link" type="submit">Iniciar Nuevo Test</button>
-                    </div>
-                    </div>
+                    <!--</div>-->
                 </form>
             </div>
         {% endif %}           

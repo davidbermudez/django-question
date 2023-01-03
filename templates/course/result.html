@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Inicio{% endblock %}
+{% block title %}Resultados test {{ quizid }}{% endblock %}
 {% block content %}
 <div></div>
 <h1 class="title">{{ course.course_name }}</h1>
@@ -12,12 +12,12 @@
             {{ forloop.counter }}. {{ preguntas.fields.question_text }}
         </p>
         <p class="subtitle">
-            {{ preguntas.fields.question_theme }}. {{ preguntas.fields.question_chapter }}
+            <span class="tag is-link is-light">{{ preguntas.pk }}</span> {{ preguntas.fields.question_theme }}. {{ preguntas.fields.question_chapter }}
         </p>
     </div>
     <div class="card-content">
         <div class="control ml-3">
-            <p>{{ preguntas.pk }}</p>
+            
             <p class="{% if preguntas.fields.question_valid == 1 %}has-text-weight-bold{% endif %}">
                 1. {{ preguntas.fields.question_response1 }}
             </p>
@@ -35,7 +35,7 @@
     <div class="card-content">
         {% if preguntas.fields.question_explanation %}
             <div class="box has-background-light">
-                <span class="button ml-3 is-small is-warning">Saber mas...</span>
+                <span class="tag is-warning">Saber mas...</span>
                 <p>{{ preguntas.fields.question_explanation }}</p>
             </div>
         {% endif %} 
@@ -45,21 +45,16 @@
         <div class="level">
             <div class="level-left">Tu respuesta:
                 {% for r in questionsResponses %}
-                {% if forloop.counter == indice %}
-                {{ r }}
-                {% with resp=r|add:0 %}
-                {% if preguntas.fields.question_valid == resp %}
-                <span class="button ml-3 is-small is-success">Correcto</span>
-                {% else %}
-                <span class="button ml-3 is-small is-danger">Error</span>
-                {% endif %}
-                {% endwith %}
+                {% if forloop.counter == indice %}                
+                    {% with resp=r|add:0 %}
+                        <span class="tag is-medium{% if preguntas.fields.question_valid == resp %}is-primary">{% else %}is-danger">{% endif %}{{ r }}</span>
+                    {% endwith %}
                 {% endif %}
                 {% endfor %}
             </div>
             <div class="level-left">
                 {% if user.is_staff %}
-                <button class="button ml-3 is-small is-link" onclick="location.href='{% url 'question_edit' preguntas.pk %}'">Editar</button>
+                <button class="button ml-3 is-normal is-link" onclick="location.href='{% url 'question_edit' preguntas.pk %}'">Editar Pregunta</button>
                 {% endif %}
             </div>
         </div>
@@ -71,7 +66,13 @@
     <div class="content">
         <span class="button is-success" onclick="location.href='{% url 'course' course.course_slug %}'">
             Regresar
-        </span>
+        </span>        
+        <button class="button is-danger" onclick="location.href='{% url 'retry_quiz' quizid %}'">
+            <span class="icon">
+              <i class="fa fa-rotate-left"></i>
+            </span>
+            <span>Reintentar</span>
+        </button>        
     </div>
 </div>
 {% endblock content %}
