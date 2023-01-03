@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required
 from .models import Course, Registration, Question, QuizIntent, QuizFinalized
 from .forms import CsvUploadForm, OneQuestionForm, QuizInit
@@ -264,44 +264,11 @@ def result_quiz(request, course_slug, quizfinalized_id):
     })
 
 
-def createIntent(user_object, course_object, select_theme, request):
+def createIntent(user_object, course_object, select_theme, request):    
     '''
     create a list with 10 question random and save in database
     '''
-
-    '''
-    print(len(select_theme))
-    if len(select_theme)==0:
-        #todas
-        quest = Question.objects.filter(question_course=course_object).order_by('?')[:10]
-        print("Todas:", quest)
-    else:
-        quest = []
-        for th in select_theme:
-            print(th, type(th))
-            questions = Question.objects.filter(question_course=course_object, question_theme=th)
-            #questions = Question.objects.filter(Q(question_course=course_object)).filter(Q(question_theme=th)).values()
-            print("Questions", questions)
-            quest.extend(questions)
-            print("Quest", quest)
     
-    if len(quest)==0:
-        messages.add_message(request, messages.ERROR, '<strong>Error al extraer las preguntas</strong>', extra_tags='is-danger')
-        return None
-    if len(quest)<10:
-        messages.add_message(request, messages.ERROR, '<strong>No existen suficientes preguntas de esta categoría</strong>', extra_tags='is-danger')
-        return None
-    elif len(quest)>10:
-        # seleccionamos 10 al azar
-        azar = []
-        for i in range(10):        
-            element = random.choice(quest)
-            while element in azar:
-                element = random.choice(quest)
-            azar.append(element)
-    
-    print(azar)
-    '''
     questions = Question.objects.filter(question_course=course_object, question_theme__in=select_theme).order_by('?')[:10]
     # create Object database    
     list_responses = (None,None,None,None,None,None,None,None,None,None)
@@ -319,6 +286,19 @@ def createIntent(user_object, course_object, select_theme, request):
 
 @login_required
 def question_edit(request, pk):
+    """_summary_
+
+    Args:
+        request (request): objet content http var session
+        pk (_type_): id Question Model
+
+    Raises:
+        PermissionDenied: _description_
+        PermissionDenied: _description_
+
+    Returns:
+        Response: _description_
+    """
     user = None
     if request.user.is_authenticated:
         user = request.user
@@ -410,6 +390,14 @@ def sendOption(request):
 
 
 def endQuiz(request):
+    """_summary_
+
+    Args:
+        request (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     if request.is_ajax():
         user = None
         if request.user.is_authenticated:

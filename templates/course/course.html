@@ -82,44 +82,43 @@
         {% endif %}
     </div>
             
-    <footer class="card-footer">
-        <div class="card-footer-item">
-            {% if intents %}            
-                <p>Existe un intento anterior sin finalizar abierto el {{ intents.0.quizintent_dateInit|date:"d/m/Y H:i" }}. Pulse en <a href="{% url 'init_quiz' course_slug=course.course_slug %}" class="button is-link is-small">Continuar Test</a> para continuar</p>
-            {% else %}
-            <div class="tile is-ancestor">                
+    <div class="card-content">
+        {% if intents %}
+            <p>Existe un intento anterior sin finalizar abierto el {{ intents.0.quizintent_dateInit|date:"d/m/Y H:i" }}. Pulse en <a href="{% url 'init_quiz' course_slug=course.course_slug %}" class="button is-link is-small">Continuar Test</a> para continuar</p>
+        {% else %}
+            <div class="content">
                 <form action='{% url 'init_quiz' course_slug=course.course_slug %}' method="post">
                     {% csrf_token %}
-                    <div class="tile">
-                        <div class="tile is-6">
-                            <label class="label">Añada temas al cuestionario</label>
-                        </div>
-                        <div class="tile is-6">
-                            <div class="select is-multiple">
-                                <ul id="id_select_theme">
-                                    {% for theme in themes %}
-                                        <li>
-                                            <label for="id_select_theme_{{ forloop.counter }}">
-                                                <input type="checkbox" name="select_theme" value="{{ theme.question_theme }}" id="id_select_theme_{{ forloop.counter }}">
-                                                {{ theme.question_theme }}
-                                            </label>
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-                        </div>
+                    <div class="box">
+                    <div>
+                        <label class="label">Añada temas al cuestionario</label>
                     </div>
-                    <div class="tile is-6 has-text-centered">     
-                        <!--<span class="button is-link" onclick="location.href='{% url 'init_quiz' course_slug=course.course_slug %}'">-->
-                        <button class="button is-link" type="submit">
-                            {% if intents %}Continuar Test{% else %}Iniciar Nuevo Test{% endif %}
-                        </button>
+
+                    <div>
+                        <div class="select is-multiple">
+                            <div class="is-flex">
+                            <ul id="id_select_theme">
+                                {% for theme in themes %}
+                                    <li class="">
+                                        <label for="id_select_theme_{{ forloop.counter }}">
+                                            <input type="checkbox" name="select_theme" value="{{ theme.question_theme }}" id="id_select_theme_{{ forloop.counter }}">
+                                            {{ theme.question_theme }}
+                                        </label>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        </div>
+                    </div>                
+                    <div class="is-6 has-text-centered">                        
+                        <button class="button is-link" type="submit">Iniciar Nuevo Test</button>
                     </div>
-                </form>                
+                    </div>
+                </form>
             </div>
-            {% endif %}           
-        </div>
-    </footer>
+        {% endif %}           
+    </div>
+    
     
         
     
