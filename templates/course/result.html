@@ -8,11 +8,21 @@
 {% for preguntas in questionsQuestions %}
 <div class="card mt-3">
     <div class="card-content">
+        <div class="level">
+            <div class="level-left"></div>
+            <div class="level-right">
+                <div class="level-item">
+                    <span class="tag is-info">{{ preguntas.pk }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-content">        
         <p class="title">
             {{ forloop.counter }}. {{ preguntas.fields.question_text }}
         </p>
         <p class="subtitle">
-            <span class="tag is-link is-light">{{ preguntas.pk }}</span> {{ preguntas.fields.question_theme }}. {{ preguntas.fields.question_chapter }}
+            {{ preguntas.fields.question_theme }}. {{ preguntas.fields.question_chapter }}
         </p>
     </div>
     <div class="card-content">
@@ -47,12 +57,12 @@
                 {% for r in questionsResponses %}
                 {% if forloop.counter == indice %}                
                     {% with resp=r|add:0 %}
-                        <span class="tag is-medium{% if preguntas.fields.question_valid == resp %}is-primary">{% else %}is-danger">{% endif %}{{ r }}</span>
+                        <span class="tag ml-1 is-medium {% if preguntas.fields.question_valid == resp %}is-primary">{% else %}is-danger">{% endif %}{{ r }}</span>
                     {% endwith %}
                 {% endif %}
                 {% endfor %}
             </div>
-            <div class="level-left">
+            <div class="level-right">
                 {% if user.is_staff %}
                 <button class="button ml-3 is-normal is-link" onclick="location.href='{% url 'question_edit' preguntas.pk %}'">Editar Pregunta</button>
                 {% endif %}

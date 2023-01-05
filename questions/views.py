@@ -314,8 +314,11 @@ def createIntent(user_object, course_object, select_theme, request):
     '''
     create a list with 10 question random and save in database
     '''
-    
-    questions = Question.objects.filter(question_course=course_object, question_theme__in=select_theme).order_by('?')[:10]
+    if len(select_theme)==0:
+        # All Themes
+        questions = Question.objects.filter(question_course=course_object).order_by('?')[:10]
+    else:
+        questions = Question.objects.filter(question_course=course_object, question_theme__in=select_theme).order_by('?')[:10]
     # create Object database    
     list_responses = (None,None,None,None,None,None,None,None,None,None)
     serialized_lre = serializers.serialize('json', questions)
