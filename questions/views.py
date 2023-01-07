@@ -207,15 +207,21 @@ def init_quiz(request, course_slug):
     course = get_object_or_404(Course, course_slug=course_slug)
     if request.method == 'POST':        
         print(request.POST)
-        # recabar los datos de la selección de temas
-        select_theme = request.POST.getlist('select_theme')
-        result=createIntent(user, course, select_theme, request)
-        if result == None:
-            return redirect('course', course_slug=course_slug)
-        questionsList = QuizIntent.objects.get(quizintent_user=user, quizintent_course=course)
-        question_active = '0'
-        # Message
-        messages.add_message(request, messages.INFO, '<strong>Recuerde:</strong><br/>Preguntas correctas: 1 pt<br/>Preguntas incorrectas: -1 pt<br/>Preguntas no contestadas: 0 pts', extra_tags='is-info')
+        # Evitar crear un nuevo intent por refresco de la página
+        try:
+            questionsList = QuizIntent.objects.get(quizintent_user=user, quizintent_course=course)
+            question_active = questionsList.quizintent_active
+        except QuizIntent.DoesNotExist():
+            # Correcto no existe
+            # recabar los datos de la selección de temas
+            select_theme = request.POST.getlist('select_theme')
+            result=createIntent(user, course, select_theme, request)
+            if result == None:
+                return redirect('course', course_slug=course_slug)
+            questionsList = QuizIntent.objects.get(quizintent_user=user, quizintent_course=course)
+            question_active = '0'
+            # Message
+            messages.add_message(request, messages.INFO, '<strong>Recuerde:</strong><br/>Preguntas correctas: 1 pt<br/>Preguntas incorrectas: -1 pt<br/>Preguntas no contestadas: 0 pts', extra_tags='is-info')
     else:
         questionsList = QuizIntent.objects.get(quizintent_user=user, quizintent_course=course)
         question_active = questionsList.quizintent_active
@@ -236,13 +242,18 @@ def init_quiz(request, course_slug):
     questionsResponses = json.loads(questionsList.quizintent_responses)
     questionsQuestions = json.loads(questionsList.quizintent_questions)
     indice = int(question_active)
+    list_random = [1, 2, 3, 4]
+    print("lista", list_random)
+    list_random = random.sample(list_random, 4)
+    print("lista", list_random)
     return render(request, 'course/quiz.html', {
         'course': course,
         'question': question_active,
         'indice': indice,
         'questionsList': questionsQuestions, #questionsList.quizintent_questions
         'questionsResponses' : questionsResponses,
-        'questionResponse': questionsResponses[indice]
+        'questionResponse': questionsResponses[indice],
+        'listRandom': list_random
     })
 
 

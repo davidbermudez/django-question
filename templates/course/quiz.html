@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Inicio{% endblock %}
+{% block title %}Cuestionario en curso{% endblock %}
 {% block content %}
 <div ></div>
 <h1 class="title">{{ course.course_name }}</h1>
@@ -23,9 +23,30 @@
                     </p>
                     <form>
                         <div class="control ml-3">
-                            <p class=""><label class="radio">
-                                <input type="radio" id="Answer_1" name="Answer_{{question}}" value="1" onclick="selectOption({{ question }}, 1)"> {{ preguntas.fields.question_response1 }}
-                            </label></p>
+                            {#{ listRandom|pprint }#}
+                            {% for ran in listRandom %}
+                                {% if ran == 1 %}
+                                    <p class=""><label class="radio">
+                                        <input type="radio" id="Answer_1" name="Answer_{{question}}" value="1" onclick="selectOption({{ question }}, 1)"> {{ preguntas.fields.question_response1 }}
+                                    </label></p>
+                                {% endif %}
+                                {% if ran == 2 %}
+                                    <p class=""><label class="radio">
+                                        <input type="radio" id="Answer_2" name="Answer_{{question}}" value="2" onclick="selectOption({{ question }}, 2)"> {{ preguntas.fields.question_response2 }}
+                                    </label></p>
+                                {% endif %}
+                                {% if ran == 3 %}
+                                    <p class=""><label class="radio">
+                                        <input type="radio" id="Answer_3" name="Answer_{{question}}" value="3" onclick="selectOption({{ question }}, 3)"> {{ preguntas.fields.question_response3 }}
+                                    </label></p>
+                                {% endif %}
+                                {% if ran == 4 %}
+                                    <p class=""><label class="radio">
+                                        <input type="radio" id="Answer_4" name="Answer_{{question}}" value="4" onclick="selectOption({{ question }}, 4)"> {{ preguntas.fields.question_response4 }}
+                                    </label></p>
+                                {% endif %}                                
+                            {% endfor %}
+                            <!--
                             <p><label class="radio">
                                 <input type="radio" id="Answer_2" name="Answer_{{question}}" value="2" onclick="selectOption({{ question }}, 2)"> {{ preguntas.fields.question_response2 }}
                             </label></p>
@@ -34,7 +55,7 @@
                             </label></p>
                             <p><label class="radio">
                                 <input type="radio" id="Answer_4" name="Answer_{{question}}" value="4" onclick="selectOption({{ question }}, 4)"> {{ preguntas.fields.question_response4 }}
-                            </label></p>
+                            </label></p>-->                            
                         </div>
                         <div class="control mt-3">
                             <div class="button" id="button_mark" onclick="selectOption({{ question }}, 0)" disabled>Desmarcar</div>
