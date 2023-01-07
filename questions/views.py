@@ -211,7 +211,8 @@ def init_quiz(request, course_slug):
         try:
             questionsList = QuizIntent.objects.get(quizintent_user=user, quizintent_course=course)
             question_active = questionsList.quizintent_active
-        except QuizIntent.DoesNotExist():
+        except Exception as e:
+            print("Error:", e)
             # Correcto no existe
             # recabar los datos de la selección de temas
             select_theme = request.POST.getlist('select_theme')
