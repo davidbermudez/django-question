@@ -34,3 +34,4 @@ class QuizForm(forms.Form):
 
 class QuizInit(forms.Form):
     select_theme = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple)
+    select_random = forms.CheckboxInput()

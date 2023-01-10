@@ -86,27 +86,54 @@
         {% if intents %}
             <p>Existe un intento anterior sin finalizar abierto el {{ intents.0.quizintent_dateInit|date:"d/m/Y H:i" }}. Pulse en <a href="{% url 'init_quiz' course_slug=course.course_slug %}" class="button is-link is-small">Continuar Test</a> para continuar</p>
         {% else %}
-            <div class="content">
+            <div class="box">
                 <form action='{% url 'init_quiz' course_slug=course.course_slug %}' method="post">
-                    {% csrf_token %}
-                    <!--<div class="box">-->
-                        <div class="subtitle">
-                            Añada temas al cuestionario
+                    {% csrf_token %}                                            
+                        <div class="columns">
+                            <div class="column">
+                                <div class="subtitle">
+                                    Añada temas al cuestionario
+                                </div>
+                                <div class="select is-multiple">
+                                    <ul id="id_select_theme">
+                                        {% for theme in themes %}
+                                            <li>
+                                                <label for="id_select_theme_{{ forloop.counter }}">
+                                                    <input type="checkbox" name="select_theme" value="{{ theme.question_theme }}" id="id_select_theme_{{ forloop.counter }}" >
+                                                    {{ theme.question_theme }}
+                                                </label>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="column">
+                                <div class="subtitle">
+                                    Otras Opciones
+                                </div>
+                                <div class="control">
+                                    <label for="id_select_random">
+                                        <input type="checkbox" name="select_random" value="1" id="id_select_random" checked="checked"> Alterar el orden de las respuestas                                
+                                    </label>
+                                </div>
+                                <div class="control">
+                                    <div class="subtitle mt-3">
+                                        Número de preguntas
+                                    </div>
+                                    <label for="id_select_number">                                        
+                                        <div class="select is-rounded">
+                                        <select id="id_select_number" name="select_number">
+                                            <option value="10" selected disabled hidden>Choose option</option>
+                                            <option value="5">5</option>
+                                            <option value="10">10</option>
+                                            <option value="20">20</option>
+                                            <option value="30">30</option>
+                                        </select>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
-                        
-                        <div class="select is-multiple">                            
-                            <ul id="id_select_theme">
-                                {% for theme in themes %}
-                                    <li>
-                                        <label for="id_select_theme_{{ forloop.counter }}">
-                                            <input type="checkbox" name="select_theme" value="{{ theme.question_theme }}" id="id_select_theme_{{ forloop.counter }}">
-                                            {{ theme.question_theme }}
-                                        </label>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                        
                         <div class="is-6 has-text-centered">                        
                             <button class="button is-link" type="submit">Iniciar Nuevo Test</button>
                         </div>

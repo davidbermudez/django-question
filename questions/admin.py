@@ -51,7 +51,8 @@ class QuizIntentAdmin(admin.ModelAdmin):
         'quizintent_questions',
         'quizintent_responses',
         'quizintent_active',
-        'quizintent_dateInit'
+        'quizintent_dateInit',
+        'quizintent_random'
     ]
 
     list_display = ['quizintent_user',

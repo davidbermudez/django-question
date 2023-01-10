@@ -208,15 +208,21 @@ def init_quiz(request, course_slug):
     if request.method == 'POST':        
         print(request.POST)
         # Evitar crear un nuevo intent por refresco de la página
+        # recabar los datos de la selección de temas
+        select_theme = request.POST.getlist('select_theme')
+        select_random = request.POST.get('select_random')
+        select_number = int(request.POST.get('select_number'))
         try:
             questionsList = QuizIntent.objects.get(quizintent_user=user, quizintent_course=course)
             question_active = questionsList.quizintent_active
         except Exception as e:
             print("Error:", e)
-            # Correcto no existe
-            # recabar los datos de la selección de temas
-            select_theme = request.POST.getlist('select_theme')
-            result=createIntent(user, course, select_theme, request)
+            # Correcto, no existe            
+            if select_random == None:
+                select_random = False
+            else:
+                select_random = True
+            result=createIntent(user, course, select_theme, select_random, select_number, request)
             if result == None:
                 return redirect('course', course_slug=course_slug)
             questionsList = QuizIntent.objects.get(quizintent_user=user, quizintent_course=course)
@@ -226,27 +232,14 @@ def init_quiz(request, course_slug):
     else:
         questionsList = QuizIntent.objects.get(quizintent_user=user, quizintent_course=course)
         question_active = questionsList.quizintent_active
-        '''
-        # Buscamos en la base de datos el intento anterior para este usuario
-        try:
-            questionsList = QuizIntent.objects.get(quizintent_user=user, quizintent_course=course)
-            question_active = questionsList.quizintent_active            
-        except QuizIntent.DoesNotExist:
-            # Si no existe, preparamos un conjunto de 10 preguntas al azar desde Question
-            createIntent(user, course, section)            
-            questionsList = QuizIntent.objects.get(quizintent_user=user, quizintent_course=course)            
-            question_active = '0'
-            # Message
-            messages.add_message(request, messages.INFO, '<strong>Recuerde:</strong><br/>Preguntas correctas: 1 pt<br/>Preguntas incorrectas: -1 pt<br/>Preguntas no contestadas: 0 pts', extra_tags='is-info')
-        '''
+        select_random = questionsList.quizintent_random
     #convert a dict/list
     questionsResponses = json.loads(questionsList.quizintent_responses)
     questionsQuestions = json.loads(questionsList.quizintent_questions)
     indice = int(question_active)
     list_random = [1, 2, 3, 4]
-    print("lista", list_random)
-    list_random = random.sample(list_random, 4)
-    print("lista", list_random)
+    if select_random:
+        list_random = random.sample(list_random, 4)    
     return render(request, 'course/quiz.html', {
         'course': course,
         'question': question_active,
@@ -322,7 +315,7 @@ def result_quiz(request, course_slug, quizfinalized_id):
         raise PermissionDenied()
 
 
-def createIntent(user_object, course_object, select_theme, request):    
+def createIntent(user_object, course_object, select_theme, select_random, select_number, request):
     '''
     create a list with 10 question random and save in database
     '''
@@ -330,16 +323,20 @@ def createIntent(user_object, course_object, select_theme, request):
         # All Themes
         questions = Question.objects.filter(question_course=course_object).order_by('?')[:10]
     else:
-        questions = Question.objects.filter(question_course=course_object, question_theme__in=select_theme).order_by('?')[:10]
-    # create Object database    
-    list_responses = (None,None,None,None,None,None,None,None,None,None)
+        questions = Question.objects.filter(question_course=course_object, question_theme__in=select_theme).order_by('?')[:select_number]
+    # create Object database
+    list_responses = []
+    for i in range(select_number):
+        list_responses.append(None)
+    #list_responses = (None,None,None,None,None,None,None,None,None,None)
     serialized_lre = serializers.serialize('json', questions)
     new_record = QuizIntent(
         quizintent_user=user_object,
         quizintent_course=course_object,
         quizintent_questions=serialized_lre,
         quizintent_responses=json.dumps(list_responses),
-        quizintent_active='0'
+        quizintent_active='0',
+        quizintent_random=select_random
     )
     new_record.save()
     return 1

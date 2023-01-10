@@ -65,8 +65,12 @@
             </div>
             <footer class="card-footer">
                 <p class="card-footer-item">
+                    {% with maximo=questionsList|length %}
+                    {% with actual=question|add:1 %}                    
                     <button class="button is-primary ml-3" onclick="changeQuestion({{ question|add:'-1' }})" {% if question == '0' %}disabled{% endif %}>Anterior</button>
-                    <button class="button is-primary ml-3" onclick="changeQuestion({{ question|add:'+1' }})" {% if question == '9' %}disabled{% endif %}>Siguiente</button>
+                    <button class="button is-primary ml-3" onclick="changeQuestion({{ question|add:'+1' }})" {% if maximo == actual %}disabled{% endif %}>Siguiente</button>
+                    {% endwith %}
+                    {% endwith %}
                 </p>
             </footer>
             <footer class="card-footer">

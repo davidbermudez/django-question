@@ -76,6 +76,7 @@ class QuizIntent(models.Model):
     quizintent_responses = models.JSONField(null=True)
     quizintent_active = models.CharField(max_length=4, null=True)
     quizintent_dateInit = models.DateTimeField(auto_now_add=True, editable=False)
+    quizintent_random = models.BooleanField(null=True)
 
 
 class QuizFinalized(models.Model):
