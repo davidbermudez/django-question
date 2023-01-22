@@ -58,6 +58,8 @@ Access to container in ejecution:
 
 pip install -r requirements.txt
 
+(reverse => python -m pip freeze > requirements.txt)
+
 ## Configure database (in server local)
 
 ### Create migration

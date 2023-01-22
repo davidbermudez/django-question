@@ -13,6 +13,7 @@ import pprint
 from django.core.exceptions import PermissionDenied
 
 
+
 def index(request):    
     user = None
     if request.user.is_authenticated:
@@ -136,7 +137,8 @@ def course(request, course_slug):
         'errores': er,
         'nocontesta': nc,
         'themes': temas,
-        'form': form
+        'form': form,
+        'paginator': paginator,
     })
 
 
@@ -208,10 +210,11 @@ def init_quiz(request, course_slug):
     if request.method == 'POST':        
         print(request.POST)
         # Evitar crear un nuevo intent por refresco de la página
-        # recabar los datos de la selección de temas
+        # recabar los datos de la selección de temas        
+        aux = request.POST.get('select_number')
         select_theme = request.POST.getlist('select_theme')
         select_random = request.POST.get('select_random')
-        select_number = int(request.POST.get('select_number'))
+        select_number = int(aux) if aux != None else 10
         try:
             questionsList = QuizIntent.objects.get(quizintent_user=user, quizintent_course=course)
             question_active = questionsList.quizintent_active

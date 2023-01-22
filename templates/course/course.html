@@ -57,28 +57,61 @@
                 {% endfor %}
                 
                 </tbody>
-            </table>
+            </table>            
             <nav class="pagination" role="navigation" aria-label="pagination">
                 {% if finalized.has_previous %}
                     <a class="pagination-previous" href="?page={{ finalized.number|add:'-1' }}">Previous</a>
+                {% else %}
+                    <button class="pagination-previous is-disabled" href="">Previous</button>
                 {% endif %}
                 {% if finalized.has_next %}
                     <a class="pagination-next" href="?page={{ finalized.number|add:'1' }}">Next page</a>
                 {% endif %}
                 <ul class="pagination-list">
-                    {% for i in finalized.paginator.page_range %}
-                        {% if finalized.number == i %}
-                        <li>
-                            <a class="pagination-link is-current" aria-label="Page 1" aria-current="page">{{i}}</a>
-                        </li>
-                        {% else %}
-                        <li>
-                            <a class="pagination-link" aria-label="" href="?page={{i}}">{{i}}</a>
-                        </li>
-                        {% endif %}                        
-                    {% endfor %}
+                {% if finalized.number|add:'-2' >= 1 %}
+                    <li>
+                        <a class="pagination-link" aria-label="" href="?page=1">{{1}}</a>
+                    </li>
+                    <li>
+                        <span class="pagination-ellipsis">&hellip;</span>
+                    </li>
+                {% else %}<!--
+                    <li>
+                        <span class="pagination-ellipsis">{{ finalized.number|add:'-3' }}</span>
+                    </li>-->
+                {% endif %}
+                
+                {% for i in paginator.page_range %}
+                    
+                    {% if finalized.number == i %}
+                    <li>
+                        <a class="pagination-link is-current" aria-label="Page 1" aria-current="page">{{i}}</a>
+                    </li>
+                    {% elif i == finalized.number|add:'-1' or i == finalized.number|add:1 %}
+                    <li>
+                        <a class="pagination-link" aria-label="" href="?page={{i}}">{{i}}</a>
+                    </li>
+                    {% elif i > paginator.num_pages|add:'-3' %}
+                    <li>
+                        <a class="pagination-link" aria-label="" href="?page={{i}}">{{i}}</a>
+                    </li>
+                    {% endif %}
+
+                {% endfor %}
+                
+                {% if paginator.num_pages >= finalized.number|add:2 %}
+                    <li>
+                        <span class="pagination-ellipsis">&hellip;</span>
+                    </li>
+                    <li>
+                        <a class="pagination-link" aria-label="" href="?page={{paginator.num_pages}}">{{paginator.num_pages}}</a>
+                    </li>
+                {% endif %}
+
+
                 </ul>
-              </nav>
+            </nav>
+
         {% endif %}
     </div>
             

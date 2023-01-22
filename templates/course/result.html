@@ -45,8 +45,10 @@
     <div class="card-content">
         {% if preguntas.fields.question_explanation %}
             <div class="box has-background-light">
-                <span class="tag is-warning">Saber mas...</span>
-                <p>{{ preguntas.fields.question_explanation }}</p>
+                <span class="tag is-warning">Saber mas...</span>                
+                {% autoescape off %}
+                <p>{{ preguntas.fields.question_explanation | linebreaksbr | escape }}</p>
+                {% endautoescape %}
             </div>
         {% endif %} 
     </div>
