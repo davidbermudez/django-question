@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}Cuestionario en curso{% endblock %}
 {% block content %}
-<div ></div>
+<a name="home"></a>
 <h1 class="title">{{ course.course_name }}</h1>
 <h2 class="subtitle">Completa el test</h2>
 
@@ -133,7 +133,7 @@
             success: function (data) {
                 if(data.result=="Success"){
                     //location.reload()
-                    window.location = window.location.href.split("#")[0];
+                    window.location = window.location.href.split("#home")[0];
                 }
             }            
         });

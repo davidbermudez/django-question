@@ -13,7 +13,6 @@ import pprint
 from django.core.exceptions import PermissionDenied
 
 
-
 def index(request):    
     user = None
     if request.user.is_authenticated:
@@ -320,11 +319,11 @@ def result_quiz(request, course_slug, quizfinalized_id):
 
 def createIntent(user_object, course_object, select_theme, select_random, select_number, request):
     '''
-    create a list with 10 question random and save in database
+    create a list with X question random and save in database
     '''
     if len(select_theme)==0:
         # All Themes
-        questions = Question.objects.filter(question_course=course_object).order_by('?')[:10]
+        questions = Question.objects.filter(question_course=course_object).order_by('?')[:select_number]
     else:
         questions = Question.objects.filter(question_course=course_object, question_theme__in=select_theme).order_by('?')[:select_number]
     # create Object database
@@ -567,3 +566,43 @@ def endQuiz(request):
             except QuizIntent.DoesNotExist:
                 print('Error')
     return HttpResponseBadRequest()
+
+
+@login_required
+def export_csv(request, course_slug, question_theme):
+    # Create the HttpResponse object with the appropriate CSV header.
+    course = get_object_or_404(Course, course_slug=course_slug)
+    if question_theme == 'All':
+        questions = Question.objects.filter(question_course=course).order_by('question_theme','question_chapter')
+    else:    
+        questions = Question.objects.filter(question_course=course, question_theme=question_theme).order_by('question_chapter')
+    response = HttpResponse(
+        content_type='text/csv',
+        headers={'Content-Disposition': 'attachment; filename="' + question_theme + '.csv"'},
+    )
+
+    writer = csv.writer(response)
+    writer.writerow(['MATERIA',	'TEMA',	'PREGUNTA',	'RESPUESTA1', 'RESPUESTA2',	'RESPUESTA3', 'RESPUESTA4',	'CORRECTA',	'EXPLICACION'])
+    '''
+    question_theme = models.CharField(max_length=256)
+    question_chapter = models.CharField(max_length=256)
+    question_text = models.TextField()
+    question_response1 = models.TextField()
+    question_response2 = models.TextField()
+    question_response3 = models.TextField()
+    question_response4 = models.TextField()
+    question_valid = models.IntegerField()
+    '''
+    for i in questions:
+        materia = i.question_theme
+        tema = i.question_chapter
+        pregunta = i.question_text
+        respuesta1 = i.question_response1
+        respuesta2 = i.question_response2
+        respuesta3 = i.question_response3
+        respuesta4 = i.question_response4
+        correcta = i.question_valid
+        explicacion = i.question_explanation
+        writer.writerow([materia, tema, pregunta, respuesta1, respuesta2, respuesta3, respuesta4, correcta, explicacion])
+
+    return response
