@@ -86,7 +86,7 @@
                     
                     {% if finalized.number == i %}
                     <li>
-                        <a class="pagination-link is-current" aria-label="Page 1" aria-current="page">{{i}}</a>
+                        <a class="pagination-link is-current" aria-label="" aria-current="page">{{i}}</a>
                     </li>
                     {% elif i == finalized.number|add:'-1' or i == finalized.number|add:1 %}
                     <li>

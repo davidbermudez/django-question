@@ -38,7 +38,11 @@
                 {% for r in questionsResponses %}
                 {% if forloop.counter == indice %}                
                     {% with resp=r|add:0 %}
-                        <span class="tag ml-1 is-medium {% if preguntas.fields.question_valid == resp %}is-primary">{% else %}is-danger">{% endif %}{{ r }}</span>
+                        {% if r == None %}
+                            <span class="tag ml-1 is-medium is-warning">No contestada</span>
+                        {% else %}
+                            <span class="tag ml-1 is-medium {% if preguntas.fields.question_valid == resp %}is-primary">{% else %}is-danger">{% endif %}{{ r }}</span>
+                        {% endif %}
                     {% endwith %}
                 {% endif %}
                 {% endfor %}

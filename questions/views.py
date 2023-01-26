@@ -231,7 +231,7 @@ def init_quiz(request, course_slug):
             questionsList = QuizIntent.objects.get(quizintent_user=user, quizintent_course=course)
             question_active = '0'
             # Message
-            messages.add_message(request, messages.INFO, '<strong>Recuerde:</strong><br/>Se puntuarán las preguntas correctas con 1 pt. <br/>Las incorrectas se restarán 0.25 pt.<br/>Las respuestas en blanco no puntuan<br/>El resultado final será: (aciertos - (errores/3) x 10)/(número de preguntas)', extra_tags='is-info')
+            messages.add_message(request, messages.INFO, '<strong>Recuerde:</strong><br/>Se puntuarán las preguntas correctas con 1 pt. <br/>Las incorrectas restarán 0,25 pt.<br/>Las respuestas en blanco no puntuan<br/>El resultado final será: ((aciertos - (errores/3)) x 10)/(número de preguntas)', extra_tags='is-info')
     else:
         questionsList = QuizIntent.objects.get(quizintent_user=user, quizintent_course=course)
         question_active = questionsList.quizintent_active
@@ -239,6 +239,11 @@ def init_quiz(request, course_slug):
     #convert a dict/list
     questionsResponses = json.loads(questionsList.quizintent_responses)
     questionsQuestions = json.loads(questionsList.quizintent_questions)
+    #numero de contestadas
+    cont = 0
+    for y in questionsResponses:
+        if y != None:
+            cont = cont + 1
     indice = int(question_active)
     list_random = [1, 2, 3, 4]
     if select_random:
@@ -250,7 +255,8 @@ def init_quiz(request, course_slug):
         'questionsList': questionsQuestions, #questionsList.quizintent_questions
         'questionsResponses' : questionsResponses,
         'questionResponse': questionsResponses[indice],
-        'listRandom': list_random
+        'listRandom': list_random,
+        'contestadas': cont
     })
 
 
@@ -324,8 +330,7 @@ def createIntent(user_object, course_object, select_theme, select_random, select
     # create Object database
     list_responses = []
     for i in range(select_number):
-        list_responses.append(None)
-    #list_responses = (None,None,None,None,None,None,None,None,None,None)
+        list_responses.append(None)        
     serialized_lre = serializers.serialize('json', questions)
     new_record = QuizIntent(
         quizintent_user=user_object,
@@ -443,6 +448,9 @@ def updateResultsFinalized(question):
                 success.append(False)
                 errores = errores + 1
             i = i + 1
+        ptos = ((aciertos - (errores/3)) * 10) / i
+        parte_decimal = pow(10.0, 2)
+        ptos = math.trunc(parte_decimal * ptos)/parte_decimal
         r.quizfinalized_result = ptos
         r.quizfinalized_success = json.dumps(success)
         r.save()

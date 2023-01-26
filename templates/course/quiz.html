@@ -45,17 +45,7 @@
                                         <input type="radio" id="Answer_4" name="Answer_{{question}}" value="4" onclick="selectOption({{ question }}, 4)"> {{ preguntas.fields.question_response4 }}
                                     </label></p>
                                 {% endif %}                                
-                            {% endfor %}
-                            <!--
-                            <p><label class="radio">
-                                <input type="radio" id="Answer_2" name="Answer_{{question}}" value="2" onclick="selectOption({{ question }}, 2)"> {{ preguntas.fields.question_response2 }}
-                            </label></p>
-                            <p><label class="radio">
-                                <input type="radio" id="Answer_3" name="Answer_{{question}}" value="3" onclick="selectOption({{ question }}, 3)"> {{ preguntas.fields.question_response3 }}
-                            </label></p>
-                            <p><label class="radio">
-                                <input type="radio" id="Answer_4" name="Answer_{{question}}" value="4" onclick="selectOption({{ question }}, 4)"> {{ preguntas.fields.question_response4 }}
-                            </label></p>-->                            
+                            {% endfor %}                     
                         </div>
                         <div class="control mt-3">
                             <div class="button" id="button_mark" onclick="selectOption({{ question }}, 0)" disabled>Desmarcar</div>
@@ -83,6 +73,32 @@
 {% empty %}
         <p>vacio</p>
 {% endfor %}
+<div class="section">
+<nav class="pagination" role="navigation" aria-label="pagination">
+    <ul class="pagination-list">    
+    {% for preguntas in questionsList %}
+        <li>
+            {% if forloop.counter == question|add:1 %}
+            <span class="pagination-ellipsis">{{ forloop.counter }}</span>
+            {% else %}
+                {% with aaaa=forloop.counter %}
+                    {% for resp in questionsResponses %}                        
+                        {% if forloop.counter == aaaa %} 
+                            {% if resp == None %}
+                                <a class="pagination-link" aria-label="" onclick="changeQuestion({{ aaaa|add:'-1' }})">{{ aaaa }}</a>
+                            {% else %}                                
+                                <a class="pagination-link is-current" aria-label="" aria-current="page" onclick="changeQuestion({{ aaaa|add:'-1' }})">{{ aaaa }}</a>                                
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                {% endwith %}
+            {% endif %}
+        </li>
+    {% endfor %}
+        <li><a class="pagination-link" aria-label="">{{contestadas}}/{{questionsList|length}}</a></li>
+    </ul>
+</nav>
+</div>
 {% endblock content %}
 
 {% block javascript %}
@@ -133,7 +149,10 @@
             success: function (data) {
                 if(data.result=="Success"){
                     //location.reload()
-                    window.location = window.location.href.split("#home")[0];
+                    window.location = window.location.href.split('#')[0];
+                    //window.location = window.location.href.("#home");
+                } else {
+                    console.log(data)
                 }
             }            
         });
