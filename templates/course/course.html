@@ -50,7 +50,7 @@
                             <td>{% cycle aciertos.0 aciertos.1 aciertos.2 aciertos.3 aciertos.4 %}</td>
                             <td>{% cycle errores.0 errores.1 errores.2 errores.3 errores.4 %}</td>
                             <td>{% cycle nocontesta.0 nocontesta.1 nocontesta.2 nocontesta.3 nocontesta.4 %}</td>                    
-                            <th class="is-size-6 has-text-centered {% if quiz.quizfinalized_result < 5 %}has-text-danger{% endif %}">{{ quiz.quizfinalized_result }}</td>
+                            <th class="is-size-6 has-text-centered {% if quiz.quizfinalized_result < 5 %}has-text-danger{% endif %}">{{ quiz.quizfinalized_result|floatformat:2 }}</td>
                         {% endwith %}
                     </tr>
                 {% endfor %}

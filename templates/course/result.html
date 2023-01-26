@@ -4,9 +4,23 @@
 <div></div>
 <h1 class="title">{{ course.course_name }}</h1>
 <h2 class="subtitle">Resultados</h2>
+<div class="section">
+    <div class="content">
+        <span class="button is-success" onclick="location.href='{% url 'course' course.course_slug %}'">
+            Regresar
+        </span>        
+        <button class="button is-danger" onclick="location.href='{% url 'retry_quiz' quizid %}'">
+            <span class="icon">
+              <i class="fa fa-rotate-left"></i>
+            </span>
+            <span>Reintentar</span>
+        </button>        
+    </div>
+</div>
 
 {% for preguntas in questionsQuestions %}
-<div class="card mt-3">
+
+<div class="card mt-3">    
     <div class="card-content">
         <div class="level">
             <div class="level-left"></div>
@@ -17,13 +31,28 @@
             </div>
         </div>
     </div>
+    {% with indice=forloop.counter %}
+    <div class="card-content">
+        <div class="level">
+            <div class="level-left">Tu respuesta:
+                {% for r in questionsResponses %}
+                {% if forloop.counter == indice %}                
+                    {% with resp=r|add:0 %}
+                        <span class="tag ml-1 is-medium {% if preguntas.fields.question_valid == resp %}is-primary">{% else %}is-danger">{% endif %}{{ r }}</span>
+                    {% endwith %}
+                {% endif %}
+                {% endfor %}
+            </div>            
+        </div>
+    </div>
+    {% endwith %}
     <div class="card-content">        
-        <p class="title">
-            {{ forloop.counter }}. {{ preguntas.fields.question_text }}
-        </p>
         <p class="subtitle">
             {{ preguntas.fields.question_theme }}. {{ preguntas.fields.question_chapter }}
         </p>
+        <p class="title">
+            {{ forloop.counter }}. {{ preguntas.fields.question_text }}
+        </p>        
     </div>
     <div class="card-content">
         <div class="control ml-3">
@@ -42,36 +71,21 @@
             </p>
         </div>
     </div>
+    {% if preguntas.fields.question_explanation %}
     <div class="card-content">
-        {% if preguntas.fields.question_explanation %}
-            <div class="box has-background-light">
-                <span class="tag is-warning">Saber mas...</span>                
-                {% autoescape off %}
-                <p>{{ preguntas.fields.question_explanation | linebreaksbr | escape }}</p>
-                {% endautoescape %}
-            </div>
-        {% endif %} 
+        <div class="box has-background-light">
+            <span class="tag is-warning">Saber mas...</span>                
+            {% autoescape off %}
+            <p>{{ preguntas.fields.question_explanation | linebreaksbr | escape }}</p>
+            {% endautoescape %}
+        </div>    
     </div>
-    {% with indice=forloop.counter %}
-    <div class="card-content">
-        <div class="level">
-            <div class="level-left">Tu respuesta:
-                {% for r in questionsResponses %}
-                {% if forloop.counter == indice %}                
-                    {% with resp=r|add:0 %}
-                        <span class="tag ml-1 is-medium {% if preguntas.fields.question_valid == resp %}is-primary">{% else %}is-danger">{% endif %}{{ r }}</span>
-                    {% endwith %}
-                {% endif %}
-                {% endfor %}
-            </div>
-            <div class="level-right">
-                {% if user.is_staff %}
-                <button class="button ml-3 is-normal is-link" onclick="location.href='{% url 'question_edit' preguntas.pk %}'">Editar Pregunta</button>
-                {% endif %}
-            </div>
+    {% endif %} 
+    {% if user.is_staff %}
+        <div class="card-content">
+            <button class="button ml-3 is-normal is-link" onclick="location.href='{% url 'question_edit' preguntas.pk %}'">Editar Pregunta</button>
         </div>
-    </div>
-    {% endwith %}
+    {% endif %}
 </div>
 {% endfor %}
 <div class="section">

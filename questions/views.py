@@ -11,6 +11,7 @@ from django.urls import reverse
 from django.db.models import Q
 import pprint
 from django.core.exceptions import PermissionDenied
+import math
 
 
 def index(request):    
@@ -230,7 +231,7 @@ def init_quiz(request, course_slug):
             questionsList = QuizIntent.objects.get(quizintent_user=user, quizintent_course=course)
             question_active = '0'
             # Message
-            messages.add_message(request, messages.INFO, '<strong>Recuerde:</strong><br/>Preguntas correctas: 1 pt<br/>Preguntas incorrectas: -1 pt<br/>Preguntas no contestadas: 0 pts', extra_tags='is-info')
+            messages.add_message(request, messages.INFO, '<strong>Recuerde:</strong><br/>Se puntuarán las preguntas correctas con 1 pt. <br/>Las incorrectas se restarán 0.25 pt.<br/>Las respuestas en blanco no puntuan<br/>El resultado final será: (aciertos - (errores/3) x 10)/(número de preguntas)', extra_tags='is-info')
     else:
         questionsList = QuizIntent.objects.get(quizintent_user=user, quizintent_course=course)
         question_active = questionsList.quizintent_active
@@ -266,9 +267,13 @@ def retry_quiz(request, quizfinalized_id):
             messages.add_message(request, messages.ERROR, 'Error al recuperar el test', extra_tags='is-danger')
             return HttpResponseRedirect(url)
         # trasladar datos desde QuizFinalized a QuizIntent
-        questionintent = QuizIntent.objects.filter(quizintent_user=user)
+        questionintent = QuizIntent.objects.filter(quizintent_user=user)        
         if len(questionintent)==0:
-            list_responses = (None,None,None,None,None,None,None,None,None,None)
+            list_responses = []
+            # ver nº de preguntas y crear una lista con n elementos todos a None (null)
+            a = json.loads(quizfinalized.quizfinalized_questions)
+            for i in range(len(a)):
+                list_responses.append(None)
             new_record = QuizIntent(
                 quizintent_user=user,
                 quizintent_course=quizfinalized.quizfinalized_course,
@@ -280,16 +285,6 @@ def retry_quiz(request, quizfinalized_id):
             messages.add_message(request, messages.INFO, 'Ahora puede reintentar el cuestionario', extra_tags='is-info')            
             url = reverse('init_quiz', args=(quizfinalized.quizfinalized_course.course_slug,))
             return HttpResponseRedirect(url)            
-            '''
-            return render(request, 'course/quiz.html', {
-                'course': new_record.quizintent_course,
-                'question': 0,
-                'indice': 0,
-                'questionsList': new_record.quizintent_questions, #questionsList.quizintent_questions
-                'questionsResponses' : new_record.quizintent_responses,
-                'questionResponse': None
-            })
-            '''
         else:
             messages.add_message(request, messages.WARNING, 'Ya existe un intento si finalizar. Acabe primero el cuestionario', extra_tags='is-warnning')
     else:
@@ -525,8 +520,7 @@ def endQuiz(request):
                 success = []
                 for p in respuestas:
                     pregunta = preguntas[i]['fields']['question_valid']
-                    if p == None:
-                        ptos = ptos
+                    if p == None:                        
                         success.append(None)
                         nc = nc + 1
                     elif p == str(pregunta):
@@ -540,7 +534,9 @@ def endQuiz(request):
                     #print("Pregunta: ", preguntas[i]['fields']['question_valid'])
                     #print("Respuesta: ", p)
                     i = i + 1                
-                
+                ptos = ((aciertos - (errores/3)) * 10) / i
+                parte_decimal = pow(10.0, 2)
+                ptos = math.trunc(parte_decimal * ptos)/parte_decimal
                 quizfinalized = QuizFinalized(
                     quizfinalized_user = quizintent.quizintent_user,
                     quizfinalized_course = quizintent.quizintent_course,

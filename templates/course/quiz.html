@@ -10,17 +10,17 @@
         <div id="thequestion" class="card {% if questionResponse == None %}has-background-grey-lighter{% else %}has-background-warning{% endif %}">
             <div class="card-header">
                 <div class="card-content">
-                    <p class="title">Pregunta nº {{ question|add:'1'}}</p>
                     <p class="subtitle">
-                        {{ preguntas.fields.question_theme }} | {{ preguntas.fields.question_chapter }}
+                        {{ preguntas.fields.question_theme }}. {{ preguntas.fields.question_chapter }}
                     </p>
+                    <p class="title">
+                        {{ forloop.counter }}. {{ preguntas.fields.question_text }}
+                    </p> 
                 </div>
             </div>
             <div class="card-content">
                 <div class="content">
-                    <p class="subtitle">
-                        {{ preguntas.fields.question_text }}
-                    </p>
+                    
                     <form>
                         <div class="control ml-3">
                             {#{ listRandom|pprint }#}

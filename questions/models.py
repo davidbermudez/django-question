@@ -93,6 +93,6 @@ class QuizFinalized(models.Model):
     quizfinalized_questions = models.JSONField(null=True)
     quizfinalized_responses = models.JSONField(null=True)
     quizfinalized_success = models.JSONField(null=True)
-    quizfinalized_result = models.IntegerField(null=True)
+    quizfinalized_result = models.FloatField(null=True)
     quizfinalized_dateInit = models.DateTimeField(null=True, editable=False)
     quizfinalized_dateEnd = models.DateTimeField(auto_now_add=True, editable=False)
