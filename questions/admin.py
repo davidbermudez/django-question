@@ -3,7 +3,9 @@ from .models import Question, Course, Type, Registration, QuizIntent, QuizFinali
 
 
 class QuestionAdmin(admin.ModelAdmin):
-    fields = ['question_theme',
+    fields = [
+        'question_course',
+        'question_theme',
         'question_chapter',
         'question_text',
         'question_response1',
@@ -11,7 +13,7 @@ class QuestionAdmin(admin.ModelAdmin):
         'question_response3',
         'question_response4',
         'question_valid',
-        'question_explanation'
+        'question_explanation'        
     ]
     
     list_display = ['question_course',

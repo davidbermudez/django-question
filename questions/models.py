@@ -47,7 +47,7 @@ class Question(models.Model):
     question_course = models.ForeignKey(
         'Course', 
         on_delete=models.CASCADE,
-        null=True)
+        null=False)
     question_explanation = models.TextField(null=True)
 
     def __str__(self):

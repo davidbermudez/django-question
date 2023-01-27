@@ -327,6 +327,9 @@ def createIntent(user_object, course_object, select_theme, select_random, select
         questions = Question.objects.filter(question_course=course_object).order_by('?')[:select_number]
     else:
         questions = Question.objects.filter(question_course=course_object, question_theme__in=select_theme).order_by('?')[:select_number]
+
+    #verify number total records selectioned
+    select_number = len(questions)
     # create Object database
     list_responses = []
     for i in range(select_number):
@@ -361,7 +364,7 @@ def question_edit(request, pk):
     """
     user = None
     if request.user.is_authenticated:
-        user = request.user
+        user = request.user        
         if not user.is_staff:
             raise PermissionDenied()
         # Tiene permisos, continuar
@@ -383,7 +386,7 @@ def question_edit(request, pk):
                 updateResultsFinalized(question_update)
             else:
                 messages.add_message(request, messages.ERROR, 'Error formulario', extra_tags='is-danger')
-            url = form.cleaned_data['referer']
+            url = form.cleaned_data['referer'] + '#' + str(pk) + "_question"
             return HttpResponseRedirect(url)
         else:
             if request.META['HTTP_REFERER']:
