@@ -208,13 +208,15 @@ def init_quiz(request, course_slug):
         user = request.user
     course = get_object_or_404(Course, course_slug=course_slug)
     if request.method == 'POST':        
-        print(request.POST)
+        # print(request.POST)
         # Evitar crear un nuevo intent por refresco de la página
-        # recabar los datos de la selección de temas        
+        # recabar los datos de la selección de temas
+        
         aux = request.POST.get('select_number')
         select_theme = request.POST.getlist('select_theme')
         select_random = request.POST.get('select_random')
         select_number = int(aux) if aux != None else 10
+        
         try:
             questionsList = QuizIntent.objects.get(quizintent_user=user, quizintent_course=course)
             question_active = questionsList.quizintent_active
@@ -239,6 +241,9 @@ def init_quiz(request, course_slug):
     #convert a dict/list
     questionsResponses = json.loads(questionsList.quizintent_responses)
     questionsQuestions = json.loads(questionsList.quizintent_questions)
+    # En caso de un reintento, viene por GET
+    if select_random == None:
+        select_random = request.GET.get('select_random')    
     #numero de contestadas
     cont = 0
     for y in questionsResponses:
@@ -263,7 +268,7 @@ def init_quiz(request, course_slug):
 @login_required
 def retry_quiz(request, quizfinalized_id):
     url = request.META['HTTP_REFERER']
-    print(url)
+    # print(url)
     user = None
     if request.user.is_authenticated:
         user = request.user
@@ -290,7 +295,7 @@ def retry_quiz(request, quizfinalized_id):
             new_record.save()
             messages.add_message(request, messages.INFO, 'Ahora puede reintentar el cuestionario', extra_tags='is-info')            
             url = reverse('init_quiz', args=(quizfinalized.quizfinalized_course.course_slug,))
-            return HttpResponseRedirect(url)            
+            return HttpResponseRedirect(url + '?select_random=True')
         else:
             messages.add_message(request, messages.WARNING, 'Ya existe un intento si finalizar. Acabe primero el cuestionario', extra_tags='is-warnning')
     else:
@@ -371,7 +376,7 @@ def question_edit(request, pk):
         if request.method == 'POST':
             form = OneQuestionForm(request.POST)
             if form.is_valid():
-                print(request.POST)
+                # print(request.POST)
                 question_update=Question.objects.get(id=pk)
                 question_update.question_text = form.cleaned_data['question_text']
                 question_update.question_response1 = form.cleaned_data['question_response1']
@@ -403,9 +408,9 @@ def question_edit(request, pk):
 
 
 def updateResultsFinalized(question):
-    print("Question", question)    
+    # print("Question", question)
     n = question.id
-    print("Question", n)
+    # print("Question", n)
     # Search regular expresion: pk\": XXXX 
     string_search = r'pk\\\":[[:blank:]]' + str(n)
     resultados = QuizFinalized.objects.filter(quizfinalized_questions__regex=string_search)
@@ -475,7 +480,7 @@ def processOption(request):
 
 
 def sendOption(request):
-    print('Request', request.POST)
+    # print('Request', request.POST)
     if request.is_ajax():
         user = None
         if request.user.is_authenticated:
@@ -485,7 +490,7 @@ def sendOption(request):
             course_id = request.POST.get('id')
             # Realizar cálculos o consultar la base de datos aquí
             quizIntent = QuizIntent.objects.get(quizintent_user=user, quizintent_course=course_id)
-            print('R', respuesta)
+            # print('R', respuesta)
             indice = int(pregunta)
             #convert a dict
             provisional = json.loads(quizIntent.quizintent_responses)
